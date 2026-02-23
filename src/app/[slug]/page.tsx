@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
-import { gangs } from "../../lib/gangs";
+
+type Member = { name: string; role?: string; image?: string };
+type Gang = { slug: string; name: string; description: string; members: Member[] };
 
 type PageProps = {
   params: Promise<{ slug: string }>;
@@ -9,7 +11,9 @@ export default async function Page({ params }: PageProps) {
   const { slug: rawSlug } = await params;
   const slug = (rawSlug || "").toLowerCase().trim();
 
-  const gang = gangs.find((g) => g.slug.toLowerCase().trim() === slug);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/gangs`, { cache: "no-store" });
+  const { data } = await res.json();
+  const gang: Gang | undefined = data?.find((g: Gang) => g.slug.toLowerCase().trim() === slug);
 
   if (!gang) return notFound();
 
@@ -17,13 +21,11 @@ export default async function Page({ params }: PageProps) {
 
   return (
     <main className="relative min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      {/* BG */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/85" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.035)_0%,transparent_60%)]" />
       </div>
 
-      {/* Content */}
       <div className="relative z-10 px-4 py-10 flex flex-col items-center">
         <div className="w-full max-w-5xl">
           <h1 className="text-2xl md:text-4xl font-black uppercase tracking-[0.22em] text-white/90 truncate">
@@ -33,7 +35,6 @@ export default async function Page({ params }: PageProps) {
             {gang.description}
           </p>
 
-          {/* MEMBERS */}
           <div className="mt-10">
             <h2 className="text-sm md:text-base font-bold tracking-[0.28em] text-white/70 uppercase mb-4">
               MEMBERS
@@ -48,6 +49,7 @@ export default async function Page({ params }: PageProps) {
                     key={i}
                     className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-3 hover:border-white/20 transition"
                   >
+                    {p.image && <img src={p.image} className="w-10 h-10 rounded-full object-cover mb-2" />}
                     <div className="font-extrabold text-white uppercase tracking-wide text-sm truncate">
                       {p.name}
                     </div>
