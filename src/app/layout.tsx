@@ -1,6 +1,12 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
+import { Orbitron } from "next/font/google";
+
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
 
 export const metadata: Metadata = {
   title: "Winterfell Vega",
@@ -15,7 +21,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="th" className="dark">
-      <body className="antialiased bg-black text-white min-h-screen flex flex-col">
+      <body
+        className={`${orbitron.className} antialiased bg-black text-white min-h-screen flex flex-col`}
+      >
         {children}
       </body>
     </html>
