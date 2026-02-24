@@ -4,13 +4,8 @@ import { useEffect, useState } from "react";
 import MusicPill from "./components/MusicPill";
 import MusicPlayerCard from "./components/MusicPill";
 
-const partners = [
-  { name: "GODYOUKNOW", href: "/godyouknow" },
-  { name: "KODOMO", href: "/kodomo" },
-  { name: "WINTERFELL VEGA", href: "/vega", featured: true },
-  { name: "THREETHOUSAND", href: "/threethousand" },
-  { name: "WELLESLEY", href: "/wellesley" },
-];
+// ✅ เหลือปุ่มเดียว MEENPRO
+const partners = [{ name: "MEENPRO", href: "/", featured: true }];
 
 export default function Page() {
   // 🔥 TYPEWRITER LOOP
@@ -55,7 +50,6 @@ export default function Page() {
   return (
     <main className="flex-1">
       <section className="relative h-screen w-full overflow-hidden flex flex-col items-center justify-center bg-[#0a0a0a] text-white font-sans selection:bg-white/20">
-
         {/* Background layers */}
         <div className="absolute inset-0 z-0 pointer-events-none">
           <div
@@ -71,7 +65,6 @@ export default function Page() {
 
         <div className="relative z-10 flex flex-col items-center w-full max-w-[1600px] px-4 py-6 h-full">
           <div className="flex-1 flex flex-col items-center justify-center w-full">
-
             {/* Title */}
             <div className="flex flex-col items-center text-center">
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/90 mb-3 min-h-[1.2em]">
@@ -96,38 +89,28 @@ export default function Page() {
               </div>
             </div>
 
-            {/* Partner buttons (ไม่แตะ) */}
+            {/* ✅ เหลือปุ่มเดียว + ✅ ลบคำว่า Partner */}
             <div className="flex flex-col items-center w-full mt-6 mb-2">
-              <div className="grid grid-cols-2 md:flex md:flex-nowrap justify-center items-center gap-4 w-full max-w-7xl">
+              <div className="flex justify-center items-center w-full max-w-7xl">
                 {partners.map((p) => (
                   <a
                     key={p.name}
                     href={p.href}
                     className={[
                       "group relative flex flex-col items-center justify-center gap-1.5 rounded-xl overflow-hidden transition-all duration-300",
-                      p.featured
-                        ? "col-span-2 md:w-80 h-24 md:h-32 bg-[#161616] border border-white/30 shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:border-white/50 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] z-10"
-                        : "col-span-1 md:w-52 h-20 md:h-24 bg-[#111] border border-white/5 hover:border-white/20 opacity-80 hover:opacity-100",
+                      "w-full max-w-md md:max-w-xl h-24 md:h-32 bg-[#161616] border border-white/30 shadow-[0_0_30px_rgba(255,255,255,0.1)] hover:border-white/50 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] z-10",
                     ].join(" ")}
                   >
                     <div className="relative z-10 flex flex-col items-center">
-                      <span
-                        className={[
-                          "font-bold uppercase tracking-wider transition-colors text-center px-1 truncate w-full",
-                          p.featured
-                            ? "text-lg md:text-2xl text-white"
-                            : "text-xs md:text-sm text-white/60 group-hover:text-white",
-                        ].join(" ")}
-                      >
+                      <span className="font-bold uppercase tracking-wider transition-colors text-center px-2 truncate w-full text-lg md:text-2xl text-white">
                         {p.name}
                       </span>
-                    
+                      {/* ✅ ลบ Partner ออกแล้ว */}
                     </div>
                   </a>
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       </section>
