@@ -121,9 +121,7 @@ export default function Page() {
                       >
                         {p.name}
                       </span>
-                      <span className="text-[8px] md:text-[10px] text-white/40 uppercase tracking-[0.2em] mt-0.5">
-                        Partner
-                      </span>
+                    
                     </div>
                   </a>
                 ))}
