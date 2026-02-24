@@ -34,7 +34,7 @@ export default function MeenproPage() {
   const [q, setQ] = useState("");
 
   useEffect(() => {
-    fetch("/api/gangs")
+    fetch("/api/members")
       .then((res) => res.json())
       .then((json) => setMembers(Array.isArray(json?.data) ? json.data : []))
       .catch(() => setMembers([]));
