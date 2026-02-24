@@ -35,11 +35,11 @@ export default function Page() {
             {/* Title */}
             <div className="flex flex-col items-center text-center">
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/90 mb-3 min-h-[1.2em]">
-                WINTERFELL VEGA{" "}
+                MEENPRO{" "}
                 <span className="inline-block ml-2 w-1 md:w-2 h-10 md:h-16 lg:h-20 bg-white align-bottom mb-2 md:mb-4" />
               </h1>
               <p className="text-xs md:text-sm text-white/40 uppercase tracking-[0.5em] md:tracking-[0.8em]">
-                BORN OF WINTERFELL
+                BORN OF MEENPRO
               </p>
             </div>
 
@@ -49,7 +49,7 @@ export default function Page() {
               <div className="relative w-40 h-40 md:w-56 md:h-56 lg:w-72 lg:h-72 transform group-hover:scale-105 transition-transform duration-700">
                 {/* ใส่ไฟล์ที่ public/uploads/Vega.png */}
                 <img
-                  src="/uploads/Vega.png"
+                  src="/uploads/meenpro.png"
                   alt="WINTERFELL VEGA Emblem"
                   className="w-full h-full object-contain drop-shadow-[0_0_50px_rgba(255,255,255,0.1)]"
                 />
