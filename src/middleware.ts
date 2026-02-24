@@ -1,53 +1,23 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-  // ป้องกันเฉพาะ /admin
-  if (!req.nextUrl.pathname.startsWith("/admin")) return res;
+  // กันเฉพาะ /admin
+  if (!pathname.startsWith("/admin")) return NextResponse.next();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => req.cookies.getAll(),
-        setAll: (cookies) => {
-          cookies.forEach(({ name, value, options }) => {
-            res.cookies.set(name, value, options);
-          });
-        },
-      },
-    }
-  );
+  // อ่าน cookie admin
+  const admin = req.cookies.get("admin")?.value;
 
-  const { data } = await supabase.auth.getUser();
-
-  // 1) ยังไม่ login → เด้งไป /login
-  if (!data?.user) {
+  // ถ้าไม่ได้ login -> ไป /login
+  if (admin !== "1") {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", req.nextUrl.pathname);
+    url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 
-  // 2) เช็คว่าเป็น admin ไหม (แบบง่าย: allowlist email)
-  const adminEmails = (process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean);
-
-  const email = (data.user.email || "").toLowerCase();
-  const isAdmin = adminEmails.includes(email);
-
-  if (!isAdmin) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/403";
-    return NextResponse.redirect(url);
-  }
-
-  return res;
+  return NextResponse.next();
 }
 
 export const config = {
