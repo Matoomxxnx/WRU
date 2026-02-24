@@ -9,12 +9,12 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "Winterfell Vega",
-  description: "BORN OF WINTERFELL",
+  title: "MEENPRO",
+  description: "BORN OF MEENPRO",
   openGraph: {
-    title: "Winterfell Vega",
-    description: "BORN OF WINTERFELL",
-    images: ["/uploads/Vega.png"],
+    title: "MEENPRO",
+    description: "BORN OF MEENPRO",
+    images: ["/uploads/Meenpro1.png"],
   },
 };
 
