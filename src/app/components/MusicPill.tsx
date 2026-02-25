@@ -166,12 +166,7 @@ export default function MusicPill({
       <audio ref={audioRef} src={src} preload="auto" style={{ display: "none" }} />
 
       {/* ✅ Overlay (ไม่เบลอ) */}
-      {open && !minimized ? (
-        <div
-          className="fixed inset-0 z-[998] bg-black/35"
-          onClick={closeOverlayToPill}
-        />
-      ) : null}
+      
 
       {/* ✅ UI ลอยมุมขวาล่าง */}
       <div className="fixed bottom-6 right-6 z-[999] font-sans select-none w-[92vw] sm:w-auto">
