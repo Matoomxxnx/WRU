@@ -1,4 +1,5 @@
 import "./globals.css";
+import GlobalPlayer from "./components/GlobalPlayer";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 import { Orbitron } from "next/font/google";
