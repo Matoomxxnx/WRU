@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ReactNode } from "react";
 import { Orbitron } from "next/font/google";
 import MusicPill from "./components/MusicPill";
+import PageEnterLoader from "./components/PageEnterLoader";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -25,9 +26,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className={`${orbitron.className} antialiased bg-black text-white min-h-screen flex flex-col`}
       >
-        {children}
+        {/* ✅ ครอบ children ด้วย Loader */}
+        <PageEnterLoader>
+          {children}
+        </PageEnterLoader>
 
-        {/* ✅ เพลงทุกหน้า (ต้องมีแค่ตัวเดียว) */}
+        {/* ✅ เพลงทุกหน้า (มีตัวเดียวพอ) */}
         <MusicPill
           src="/music/song.mp3"
           title="Love in the Drak"
@@ -37,23 +41,23 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           loop
         />
 
-        {/* ✅ Footer แบบไม่เลื่อน (ติดล่างเหมือนรูป) */}
-       <div className="fixed inset-x-0 bottom-0 z-40 pointer-events-none">
-  <div className="mx-auto w-[80%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-  <div className="py-4 text-center">
-    <p className="text-[11px] tracking-[0.45em] uppercase text-white/25 pointer-events-auto">
-      SYSTEM DESIGN BY{" "}
-      <a
-        href="https://www.facebook.com/matoom1123"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-white/45 font-semibold hover:text-white transition"
-      >
-        Matoom Wellesley
-      </a>
-    </p>
-  </div>
-</div>
+        {/* ✅ Footer แบบติดล่าง ไม่เลื่อน */}
+        <div className="fixed inset-x-0 bottom-0 z-40 pointer-events-none">
+          <div className="mx-auto w-[80%] h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          <div className="py-4 text-center">
+            <p className="text-[11px] tracking-[0.45em] uppercase text-white/25 pointer-events-auto">
+              SYSTEM DESIGN BY{" "}
+              <a
+                href="https://www.facebook.com/matoom1123"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/45 font-semibold hover:text-white transition"
+              >
+                Matoom Wellesley
+              </a>
+            </p>
+          </div>
+        </div>
       </body>
     </html>
   );
