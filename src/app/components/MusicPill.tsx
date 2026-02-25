@@ -32,14 +32,14 @@ export default function MusicPill({
   const [dur, setDur] = useState(0);
   const [cur, setCur] = useState(0);
 
-  // UI states
+  // ✅ UI states
   const [open, setOpen] = useState(false); // เปิดการ์ดใหญ่
-  const [minimized, setMinimized] = useState(true); // เริ่มแบบ pill
+  const [minimized, setMinimized] = useState(true); // pill
 
-  // restore basic state
+  // ✅ restore state
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("music_ui_v2");
+      const saved = localStorage.getItem("music_ui_v3");
       if (saved) {
         const j = JSON.parse(saved);
         if (typeof j.playing === "boolean") setPlaying(j.playing);
@@ -50,15 +50,17 @@ export default function MusicPill({
     } catch {}
   }, []);
 
+  // ✅ persist state
   useEffect(() => {
     try {
       localStorage.setItem(
-        "music_ui_v2",
+        "music_ui_v3",
         JSON.stringify({ playing, time: cur, open, minimized })
       );
     } catch {}
   }, [playing, cur, open, minimized]);
 
+  // ✅ bind audio
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
@@ -85,7 +87,7 @@ export default function MusicPill({
     a.addEventListener("timeupdate", onTime);
     a.addEventListener("ended", onEnded);
 
-    // ถ้าเคยเล่นไว้ จะลองเล่นต่อ (browser บางตัว block autoplay ก็ไม่เป็นไร)
+    // try resume
     if (playing) a.play().catch(() => {});
 
     return () => {
@@ -112,19 +114,16 @@ export default function MusicPill({
     return Math.min(100, Math.max(0, (cur / dur) * 100));
   }, [cur, dur]);
 
-  // click pill -> open card
   const openCard = () => {
     setMinimized(false);
     setOpen(true);
   };
 
-  // minimize card -> pill
   const minimizeCard = () => {
     setOpen(false);
     setMinimized(true);
   };
 
-  // close overlay (ยังคงเป็น pill)
   const closeOverlayToPill = () => {
     setOpen(false);
     setMinimized(true);
@@ -132,10 +131,10 @@ export default function MusicPill({
 
   return (
     <>
-      {/* ✅ ซ่อน audio เหมือนที่คุณต้องการ */}
+      {/* ✅ ซ่อน audio */}
       <audio ref={audioRef} src={src} preload="auto" style={{ display: "none" }} />
 
-      {/* ✅ Overlay เวลาเปิดการ์ดใหญ่ (คลิกพื้นหลังเพื่อปิด) */}
+      {/* ✅ Overlay (มีเฉพาะตอนเปิดการ์ดใหญ่) */}
       {open && !minimized ? (
         <div
           className="fixed inset-0 z-[998] bg-black/30 backdrop-blur-[2px]"
@@ -143,7 +142,7 @@ export default function MusicPill({
         />
       ) : null}
 
-      {/* ✅ ตัว UI ลอยมุมขวาล่าง */}
+      {/* ✅ UI ลอยมุมขวาล่าง */}
       <div className="fixed bottom-6 right-6 z-[999] font-sans select-none w-[92vw] sm:w-auto">
         {/* ===== Pill (ย่อ) ===== */}
         {minimized ? (
@@ -180,12 +179,12 @@ export default function MusicPill({
                 <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest group-hover:text-white/60 transition-colors">
                   Music
                 </span>
-                <span className="text-[10px] font-bold text-white uppercase tracking-wider truncate max-w-[160px]">
+                <span className="text-[10px] font-bold text-white uppercase tracking-wider truncate max-w-[180px]">
                   {title}
                 </span>
               </div>
 
-              {/* ปุ่มเล่น/หยุดใน pill (ไม่เปิดการ์ด) */}
+              {/* ปุ่มเล่น/หยุดใน pill */}
               <button
                 type="button"
                 onClick={(e) => {
@@ -250,7 +249,6 @@ export default function MusicPill({
                 </div>
               </div>
 
-              {/* progress */}
               <div className="mt-5">
                 <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                   <div className="h-full bg-white/85" style={{ width: `${progress}%` }} />
@@ -261,14 +259,13 @@ export default function MusicPill({
                 </div>
               </div>
 
-              {/* controls */}
               <div className="mt-4 flex items-center justify-between">
                 <input
                   type="range"
                   min={0}
                   max={1}
                   step={0.01}
-                  value={volume}
+                  defaultValue={volume}
                   onChange={(e) => {
                     const v = Number(e.target.value);
                     const a = audioRef.current;
