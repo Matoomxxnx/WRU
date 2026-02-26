@@ -112,43 +112,51 @@ export default function MusicPill({
     if (a) a.volume = vol;
   }, [vol]);
 
-  // ✅ MUTED TRICK AUTOPLAY (เล่นเองตอนเข้าเว็บ)
+  // ✅ MUTED TRICK AUTOPLAY (เข้าเว็บแล้วพยายามเล่นทันที)
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
 
-    const startPlayback = async () => {
+    const tryStart = async () => {
       try {
-        // เล่นแบบ muted ก่อนให้ผ่าน policy
+        // 1) เล่นแบบ muted ให้ติดก่อน
         a.muted = true;
+        a.volume = vol;
         await a.play();
-
-        // แล้วค่อยเปิดเสียง
-        a.muted = false;
         setPlaying(true);
+
+        // 2) พยายามเปิดเสียงทันที (บางเครื่องผ่าน บางเครื่องต้องคลิก)
+        a.muted = false;
       } catch {
-        // ถ้ายังโดนบล็อก: ให้เล่นทันทีหลังคลิกครั้งแรก
-        const resumeOnClick = async () => {
+        // fallback: รอ interaction ครั้งแรก
+        const resume = async () => {
           try {
             a.muted = false;
+            a.volume = vol;
             await a.play();
             setPlaying(true);
           } catch {}
-          window.removeEventListener("click", resumeOnClick);
         };
-        window.addEventListener("click", resumeOnClick);
+        window.addEventListener("pointerdown", resume, { once: true });
+        window.addEventListener("touchstart", resume, { once: true });
+        window.addEventListener("click", resume, { once: true });
       }
     };
 
-    startPlayback();
+    tryStart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const togglePlay = async () => {
     const a = audioRef.current;
     if (!a) return;
     try {
-      if (a.paused) await a.play();
-      else a.pause();
+      if (a.paused) {
+        a.muted = false;
+        await a.play();
+      } else {
+        a.pause();
+      }
     } catch {}
   };
 
@@ -183,7 +191,7 @@ export default function MusicPill({
 
   return (
     <>
-      {/* ✅ audio ซ่อน + autoplay + muted trick */}
+      {/* ✅ audio ซ่อน + autoplay + muted + inline */}
       <audio
         ref={audioRef}
         src={src}
@@ -194,7 +202,7 @@ export default function MusicPill({
         style={{ display: "none" }}
       />
 
-      {/* ✅ UI ลอยมุมขวาล่าง (ไม่ทำ overlay บังด้านหลัง) */}
+      {/* ✅ UI ลอยมุมขวาล่าง (ไม่บังการกดด้านหลัง) */}
       <div className="fixed bottom-6 right-6 z-[999] font-sans select-none w-[92vw] sm:w-auto pointer-events-none">
         <div className="pointer-events-auto">
           {/* ===== Pill (ย่อ) ===== */}
@@ -305,7 +313,6 @@ export default function MusicPill({
                     <div className="h-full bg-white/85" style={{ width: `${progressPct}%` }} />
                   </div>
 
-                  {/* slider จริง (ทับไว้ โปร่งใส) */}
                   <input
                     type="range"
                     min={0}
