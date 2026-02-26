@@ -2,349 +2,220 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+type Role = "founder" | "leader" | "member";
 type Member = {
   id: string;
-  name: string | null;
-  role: string | null;
+  name: string;
+  role: Role;
   facebook_url: string | null;
   avatar_url: string | null;
-  sort_order?: number | null;
-  is_active?: boolean | null;
-  created_at?: string | null;
+  sort_order: number;
 };
 
-function normalizeRole(role?: string | null) {
-  const r = (role ?? "").trim().toLowerCase();
-  if (["founder", "founders", "owner", "boss", "admin"].includes(r)) return "FOUNDERS";
-  if (["leader", "leaders", "mod", "manager"].includes(r)) return "LEADERS";
-  if (["member", "members", "user"].includes(r)) return "MEMBERS";
-  return "MEMBERS";
-}
+const label: Record<Role, string> = {
+  founder: "FOUNDER",
+  leader: "LEADER",
+  member: "MEMBER",
+};
 
-function safeText(v?: string | null) {
-  return (v ?? "").toString();
-}
-
-export default function MeenproPage() {
-  const [members, setMembers] = useState<Member[]>([]);
+export default function WellesleyPage() {
+  const [items, setItems] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
 
+  async function load() {
+    setLoading(true);
+    const res = await fetch("/api/members", { cache: "no-store" });
+    const json = await res.json();
+    setItems(json?.data ?? []);
+    setLoading(false);
+  }
+
   useEffect(() => {
-    fetch("/api/members")
-      .then((res) => res.json())
-      .then((json) => setMembers(Array.isArray(json?.data) ? json.data : []))
-      .catch(() => setMembers([]));
+    load();
   }, []);
 
   const filtered = useMemo(() => {
-    const query = q.trim().toLowerCase();
-    return members
-      .filter((m) => (m.is_active === undefined || m.is_active === null ? true : !!m.is_active))
-      .filter((m) => {
-        if (!query) return true;
-        const hay = `${safeText(m.name)} ${safeText(m.role)}`.toLowerCase();
-        return hay.includes(query);
-      })
-      .sort((a, b) => {
-        const ao = a.sort_order ?? 999999;
-        const bo = b.sort_order ?? 999999;
-        if (ao !== bo) return ao - bo;
-        const ad = a.created_at ? new Date(a.created_at).getTime() : 0;
-        const bd = b.created_at ? new Date(b.created_at).getTime() : 0;
-        return ad - bd;
-      });
-  }, [members, q]);
+    const qq = q.trim().toLowerCase();
+    return [...items]
+      .filter((m) => (qq ? m.name.toLowerCase().includes(qq) : true))
+      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  }, [items, q]);
 
-  const groups = useMemo(() => {
-    const g: Record<"FOUNDERS" | "LEADERS" | "MEMBERS", Member[]> = {
-      FOUNDERS: [],
-      LEADERS: [],
-      MEMBERS: [],
-    };
-    for (const m of filtered) {
-      const key = normalizeRole(m.role) as "FOUNDERS" | "LEADERS" | "MEMBERS";
-      g[key].push(m);
-    }
-    return g;
-  }, [filtered]);
-
-  const Section = ({
-    title,
-    indexLabel,
-    items,
-    accent,
-  }: {
-    title: string;
-    indexLabel: string;
-    items: Member[];
-    accent: "gold" | "red" | "white";
-  }) => {
-    const accentColor =
-      accent === "gold" ? "#FFD700" : accent === "red" ? "#FF2D2D" : "#FFFFFF";
-
-    return (
-      <section className="w-full mt-14">
-        <div className="flex items-center gap-4 mb-6">
-          <div
-            className="text-xs font-bold px-2 py-1"
-            style={{
-              background: accentColor,
-              color: "#000",
-              fontFamily: "'Space Mono', monospace",
-              letterSpacing: "0.2em",
-            }}
-          >
-            {indexLabel}
-          </div>
-          <h2
-            className="text-3xl md:text-4xl font-black uppercase"
-            style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              letterSpacing: "0.15em",
-              color: accentColor,
-            }}
-          >
-            {title}
-          </h2>
-          <div className="flex-1 h-px" style={{ background: `${accentColor}33` }} />
-          <span
-            className="text-xs tracking-widest"
-            style={{ color: `${accentColor}55`, fontFamily: "'Space Mono', monospace" }}
-          >
-            {items.length} TOTAL
-          </span>
-        </div>
-
-        {items.length === 0 ? (
-          <p className="text-white/30 text-sm" style={{ fontFamily: "'Space Mono', monospace" }}>
-            — NO MEMBERS YET —
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {items.map((m) => (
-              <div
-                key={m.id}
-                className="group relative overflow-hidden transition-all duration-200"
-                style={{ background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)" }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = `${accentColor}55`;
-                  (e.currentTarget as HTMLDivElement).style.background = "#111";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.08)";
-                  (e.currentTarget as HTMLDivElement).style.background = "#0a0a0a";
-                }}
-              >
-                <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: accentColor, opacity: 0.75 }} />
-                <div
-                  className="absolute top-0 right-0 text-[8px] font-bold px-2 py-0.5 tracking-widest"
-                  style={{
-                    background: `${accentColor}15`,
-                    color: accentColor,
-                    fontFamily: "'Space Mono', monospace",
-                    borderLeft: `1px solid ${accentColor}33`,
-                    borderBottom: `1px solid ${accentColor}33`,
-                  }}
-                >
-                  {title.slice(0, -1)}
-                </div>
-
-                <div className="p-4 pl-6 flex items-center gap-4">
-                  <div className="relative flex-shrink-0">
-                    <img
-                      src={m.avatar_url || "/uploads/meenpro.png"}
-                      alt={safeText(m.name) || "member"}
-                      className="w-12 h-12 object-cover"
-                      style={{ border: `2px solid ${accentColor}44` }}
-                    />
-                    <span
-                      className="absolute -bottom-1 -right-1 w-2.5 h-2.5"
-                      style={{ background: "#00FF88", boxShadow: "0 0 8px rgba(0,255,136,0.9)" }}
-                    />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <h3
-                      className="font-black uppercase truncate text-white leading-tight"
-                      style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.1em", fontSize: "1.1rem" }}
-                    >
-                      {safeText(m.name) || "UNNAMED"}
-                    </h3>
-                    {m.facebook_url ? (
-                      <a
-                        href={m.facebook_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-[11px] transition-opacity"
-                        style={{ color: accentColor, fontFamily: "'Space Mono', monospace", opacity: 0.65, textDecoration: "none" }}
-                        onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = "1")}
-                        onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = "0.65")}
-                      >
-                        FACEBOOK ↗
-                      </a>
-                    ) : (
-                      <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.2)", fontFamily: "'Space Mono', monospace" }}>
-                        NO LINK
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-    );
-  };
+  const founders = filtered.filter((m) => m.role === "founder");
+  const leaders = filtered.filter((m) => m.role === "leader");
+  const members = filtered.filter((m) => m.role === "member");
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap');
-
-        @keyframes marquee {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes blink {
-          0%,49%  { opacity: 1; }
-          50%,99% { opacity: 0; }
-          100%    { opacity: 1; }
-        }
-        .marquee-inner { animation: marquee 22s linear infinite; display: flex; width: max-content; }
-        .blink         { animation: blink 1.1s step-end infinite; }
-      `}</style>
-
-      <main
-        className="flex flex-col text-white relative overflow-hidden"
-        style={{ background: "#000000", minHeight: "calc(100vh - 62px)" }}
-      >
-        {/* ── BG: Noise / grain texture ── */}
+    <div className="min-h-screen bg-[#050608] text-white">
+      {/* Background pattern + vignette */}
+      <div className="pointer-events-none fixed inset-0 opacity-[0.22]">
         <div
-          className="fixed inset-0 pointer-events-none"
+          className="h-full w-full"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            backgroundRepeat: "repeat",
-            backgroundSize: "160px 160px",
-            opacity: 0.045,
-            mixBlendMode: "screen",
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0)",
+            backgroundSize: "26px 26px",
           }}
         />
+      </div>
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.08),transparent_55%)]" />
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.85)_80%)]" />
 
-        {/* ── BG: Soft vignette ── */}
-        <div
-          className="fixed inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse 110% 90% at 50% 50%, transparent 40%, rgba(0,0,0,0.75) 100%)",
-          }}
-        />
+      <div className="relative mx-auto max-w-6xl px-5 py-12">
+        {/* Header */}
+        <div className="flex flex-col items-center gap-3">
+          <h1 className="text-4xl font-extrabold tracking-[0.22em]">
+            KINGMEENPRO
+          </h1>
+          <div className="flex items-center gap-3 text-[11px] tracking-[0.35em] text-white/45">
+            <span className="h-px w-10 bg-white/15" />
+            <span>KINGMEENPRO MEMBERS</span>
+            <span className="h-px w-10 bg-white/15" />
+          </div>
+        </div>
 
-        {/* ── Top border + marquee ── */}
-        <div className="fixed top-0 inset-x-0 pointer-events-none" style={{ zIndex: 50 }}>
-          <div className="h-[2px] bg-white w-full" />
-          <div
-            className="overflow-hidden"
-            style={{ background: "#000", borderBottom: "1px solid rgba(255,255,255,0.1)", height: "20px" }}
-          >
-            <div className="marquee-inner">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <span
-                  key={i}
-                  className="text-[9px] font-bold mr-10"
-                  style={{
-                    color: "rgba(255,255,255,0.22)",
-                    fontFamily: "'Space Mono', monospace",
-                    letterSpacing: "0.5em",
-                    lineHeight: "20px",
-                  }}
-                >
-                  KINGMEENPRO ✦ KMP IN MY HEART ✦ MEENPRO MEMBERS ✦
-                </span>
+        {/* Search */}
+        <div className="mt-10 flex justify-end">
+          <div className="relative w-full max-w-sm">
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="SEARCH MEMBERS..."
+              className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 pr-10 text-sm outline-none focus:border-white/25"
+            />
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/40">
+              ⌕
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-8 h-px w-full bg-white/10" />
+
+        {loading ? (
+          <div className="mt-10 text-sm text-white/60">Loading...</div>
+        ) : (
+          <div className="mt-10 space-y-14">
+            <Section title="FOUNDERS" count={founders.length} layout="center">
+              {founders.map((m) => (
+                <MemberPill key={m.id} m={m} />
               ))}
-            </div>
+            </Section>
+
+            <Section title="LEADERS" count={leaders.length} layout="grid">
+              {leaders.map((m) => (
+                <MemberPill key={m.id} m={m} />
+              ))}
+            </Section>
+
+            <Section title="MEMBERS" count={members.length} layout="grid">
+              {members.map((m) => (
+                <MemberPill key={m.id} m={m} />
+              ))}
+            </Section>
           </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  count,
+  layout,
+  children,
+}: {
+  title: string;
+  count: number;
+  layout: "center" | "grid";
+  children: React.ReactNode;
+}) {
+  return (
+    <section>
+      <div className="flex items-center gap-3">
+        <h2 className="text-xl font-extrabold tracking-widest">{title}</h2>
+        <div className="text-xs text-white/40">/ {String(count).padStart(2, "0")}</div>
+      </div>
+
+      <div className="mt-5">
+        {layout === "center" ? (
+          <div className="flex flex-wrap justify-center gap-4">{children}</div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{children}</div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function MemberPill({ m }: { m: any }) {
+  const border =
+    m.role === "founder"
+      ? "border-yellow-500/35 shadow-[0_0_0_1px_rgba(234,179,8,0.15)]"
+      : m.role === "leader"
+      ? "border-red-500/30 shadow-[0_0_0_1px_rgba(239,68,68,0.10)]"
+      : "border-white/12";
+
+  const badge =
+    m.role === "founder"
+      ? "text-yellow-300 bg-yellow-500/10 border-yellow-500/25"
+      : m.role === "leader"
+      ? "text-red-300 bg-red-500/10 border-red-500/25"
+      : "text-white/70 bg-white/10 border-white/15";
+
+  const crown = m.role === "founder" ? "👑" : m.role === "leader" ? "👑" : "•";
+
+  return (
+    <div
+      className={[
+        "group relative w-full max-w-[420px] rounded-2xl border bg-white/5",
+        "px-4 py-3 backdrop-blur-sm transition",
+        "hover:bg-white/7 hover:border-white/20",
+        border,
+      ].join(" ")}
+    >
+      <div className="flex items-center gap-3">
+        {/* Left logo/avatar */}
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black/20">
+          {m.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={m.avatar_url} alt={m.name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="grid h-full w-full place-items-center text-white/40">
+              {/* placeholder logo */}
+              <span className="text-lg">⛨</span>
+            </div>
+          )}
+          {/* Online dot */}
+          <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full bg-emerald-400 shadow-[0_0_0_2px_rgba(0,0,0,0.55)]" />
         </div>
 
-        {/* ── CONTENT ── */}
-        <div className="relative z-10 pt-12 flex-1 flex flex-col">
-          <div className="max-w-6xl mx-auto w-full px-6 pt-10 pb-6">
+        <div className="min-w-0 flex-1">
+          {/* badge */}
+          <div className="flex items-center gap-2">
+            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wide ${badge}`}>
+              <span>{crown}</span>
+              <span>{label[m.role as Role]}</span>
+            </span>
+          </div>
 
-            {/* Title */}
-            <h1
-              className="text-center uppercase"
-              style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: "clamp(3.5rem, 10vw, 7rem)",
-                letterSpacing: "0.35em",
-                color: "#FFFFFF",
-                lineHeight: 1,
-                textShadow: "0 0 60px rgba(255,255,255,0.1)",
-              }}
+          <div className="mt-1 truncate text-sm font-extrabold">{m.name}</div>
+
+          {m.facebook_url ? (
+            <a
+              href={m.facebook_url}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 inline-block text-xs font-semibold text-sky-300 hover:underline"
             >
-              MEENPRO
-            </h1>
-
-            {/* Subtitle */}
-            <div className="flex items-center justify-center gap-3 mt-2">
-              <div className="h-px w-16" style={{ background: "rgba(255,255,255,0.18)" }} />
-              <p
-                style={{
-                  fontFamily: "'Space Mono', monospace",
-                  fontSize: "0.6rem",
-                  letterSpacing: "0.65em",
-                  color: "rgba(255,255,255,0.28)",
-                }}
-              >
-                MEMBERS DIRECTORY
-              </p>
-              <div className="h-px w-16" style={{ background: "rgba(255,255,255,0.18)" }} />
-            </div>
-
-            {/* Search */}
-            <div className="mt-10 flex justify-center">
-              <div className="w-full max-w-xl relative">
-                <input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="SEARCH_"
-                  className="w-full outline-none text-white placeholder:text-white/20 text-sm"
-                  style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    borderLeft: "3px solid rgba(255,255,255,0.6)",
-                    padding: "12px 16px",
-                    fontFamily: "'Space Mono', monospace",
-                    letterSpacing: "0.1em",
-                  }}
-                  onFocus={(e) => {
-                    (e.currentTarget as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.4)";
-                    (e.currentTarget as HTMLInputElement).style.borderLeftColor = "#fff";
-                  }}
-                  onBlur={(e) => {
-                    (e.currentTarget as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.12)";
-                    (e.currentTarget as HTMLInputElement).style.borderLeftColor = "rgba(255,255,255,0.6)";
-                  }}
-                />
-                {!q && (
-                  <span
-                    className="blink absolute right-4 top-1/2 -translate-y-1/2 text-white/25"
-                    style={{ fontFamily: "'Space Mono', monospace" }}
-                  >
-                    █
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Sections */}
-          <div className="max-w-6xl mx-auto w-full px-6 pb-16">
-            <Section title="FOUNDERS" indexLabel="01" items={groups.FOUNDERS} accent="gold" />
-            <Section title="LEADERS"  indexLabel="02" items={groups.LEADERS}  accent="red"  />
-            <Section title="MEMBERS"  indexLabel="03" items={groups.MEMBERS}  accent="white" />
-          </div>
+              Facebook
+            </a>
+          ) : (
+            <div className="mt-1 text-xs text-white/35">—</div>
+          )}
         </div>
-      </main>
-    </>
+      </div>
+    </div>
   );
 }
