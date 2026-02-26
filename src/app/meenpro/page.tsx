@@ -84,7 +84,6 @@ export default function MeenproPage() {
 
     return (
       <section className="w-full mt-14">
-        {/* Section header */}
         <div className="flex items-center gap-4 mb-6">
           <div
             className="text-xs font-bold px-2 py-1"
@@ -126,10 +125,7 @@ export default function MeenproPage() {
               <div
                 key={m.id}
                 className="group relative overflow-hidden transition-all duration-200"
-                style={{
-                  background: "#0a0a0a",
-                  border: `1px solid rgba(255,255,255,0.08)`,
-                }}
+                style={{ background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)" }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLDivElement).style.borderColor = `${accentColor}55`;
                   (e.currentTarget as HTMLDivElement).style.background = "#111";
@@ -139,13 +135,7 @@ export default function MeenproPage() {
                   (e.currentTarget as HTMLDivElement).style.background = "#0a0a0a";
                 }}
               >
-                {/* Accent left bar */}
-                <div
-                  className="absolute left-0 top-0 bottom-0 w-[3px]"
-                  style={{ background: accentColor, opacity: 0.75 }}
-                />
-
-                {/* Corner tag */}
+                <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: accentColor, opacity: 0.75 }} />
                 <div
                   className="absolute top-0 right-0 text-[8px] font-bold px-2 py-0.5 tracking-widest"
                   style={{
@@ -160,7 +150,6 @@ export default function MeenproPage() {
                 </div>
 
                 <div className="p-4 pl-6 flex items-center gap-4">
-                  {/* Avatar */}
                   <div className="relative flex-shrink-0">
                     <img
                       src={m.avatar_url || "/uploads/meenpro.png"}
@@ -170,22 +159,14 @@ export default function MeenproPage() {
                     />
                     <span
                       className="absolute -bottom-1 -right-1 w-2.5 h-2.5"
-                      style={{
-                        background: "#00FF88",
-                        boxShadow: "0 0 8px rgba(0,255,136,0.9)",
-                      }}
+                      style={{ background: "#00FF88", boxShadow: "0 0 8px rgba(0,255,136,0.9)" }}
                     />
                   </div>
 
-                  {/* Info */}
                   <div className="min-w-0 flex-1">
                     <h3
                       className="font-black uppercase truncate text-white leading-tight"
-                      style={{
-                        fontFamily: "'Bebas Neue', sans-serif",
-                        letterSpacing: "0.1em",
-                        fontSize: "1.1rem",
-                      }}
+                      style={{ fontFamily: "'Bebas Neue', sans-serif", letterSpacing: "0.1em", fontSize: "1.1rem" }}
                     >
                       {safeText(m.name) || "UNNAMED"}
                     </h3>
@@ -195,22 +176,14 @@ export default function MeenproPage() {
                         target="_blank"
                         rel="noreferrer"
                         className="text-[11px] transition-opacity"
-                        style={{
-                          color: accentColor,
-                          fontFamily: "'Space Mono', monospace",
-                          opacity: 0.65,
-                          textDecoration: "none",
-                        }}
+                        style={{ color: accentColor, fontFamily: "'Space Mono', monospace", opacity: 0.65, textDecoration: "none" }}
                         onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = "1")}
                         onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = "0.65")}
                       >
                         FACEBOOK ↗
                       </a>
                     ) : (
-                      <p
-                        className="text-[11px]"
-                        style={{ color: "rgba(255,255,255,0.2)", fontFamily: "'Space Mono', monospace" }}
-                      >
+                      <p className="text-[11px]" style={{ color: "rgba(255,255,255,0.2)", fontFamily: "'Space Mono', monospace" }}>
                         NO LINK
                       </p>
                     )}
@@ -233,60 +206,36 @@ export default function MeenproPage() {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-        @keyframes scanline {
-          0%   { top: -80px; }
-          100% { top: 100vh; }
-        }
         @keyframes blink {
           0%,49%  { opacity: 1; }
           50%,99% { opacity: 0; }
           100%    { opacity: 1; }
         }
         .marquee-inner { animation: marquee 22s linear infinite; display: flex; width: max-content; }
-        .scanline-anim { animation: scanline 7s linear infinite; }
         .blink         { animation: blink 1.1s step-end infinite; }
       `}</style>
 
       <main
-        className="min-h-screen text-white relative overflow-hidden"
-        style={{ background: "#000000" }}
+        className="flex flex-col text-white relative overflow-hidden"
+        style={{ background: "#000000", minHeight: "calc(100vh - 62px)" }}
       >
-        {/* ── BG: Halftone dot grid ── */}
+        {/* ── BG: Noise / grain texture ── */}
         <div
           className="fixed inset-0 pointer-events-none"
           style={{
-            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px)",
-            backgroundSize: "22px 22px",
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            backgroundRepeat: "repeat",
+            backgroundSize: "160px 160px",
+            opacity: 0.045,
+            mixBlendMode: "screen",
           }}
         />
 
-        {/* ── BG: Diagonal hatch lines ── */}
+        {/* ── BG: Soft vignette ── */}
         <div
           className="fixed inset-0 pointer-events-none"
           style={{
-            opacity: 0.025,
-            backgroundImage: `repeating-linear-gradient(
-              -55deg,
-              #fff 0px, #fff 1px,
-              transparent 1px, transparent 36px
-            )`,
-          }}
-        />
-
-        {/* ── BG: Vignette ── */}
-        <div
-          className="fixed inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse 120% 100% at 50% 50%, transparent 30%, rgba(0,0,0,0.9) 100%)",
-          }}
-        />
-
-        {/* ── BG: CRT scanline ── */}
-        <div
-          className="scanline-anim fixed inset-x-0 pointer-events-none"
-          style={{
-            height: "80px",
-            background: "linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.016) 50%, transparent 100%)",
+            background: "radial-gradient(ellipse 110% 90% at 50% 50%, transparent 40%, rgba(0,0,0,0.75) 100%)",
           }}
         />
 
@@ -317,8 +266,8 @@ export default function MeenproPage() {
         </div>
 
         {/* ── CONTENT ── */}
-        <div className="relative z-10 pt-12">
-          <div className="max-w-6xl mx-auto px-6 pt-10 pb-6">
+        <div className="relative z-10 pt-12 flex-1 flex flex-col">
+          <div className="max-w-6xl mx-auto w-full px-6 pt-10 pb-6">
 
             {/* Title */}
             <h1
@@ -389,22 +338,11 @@ export default function MeenproPage() {
           </div>
 
           {/* Sections */}
-          <div className="max-w-6xl mx-auto px-6 pb-8">
+          <div className="max-w-6xl mx-auto w-full px-6 pb-16">
             <Section title="FOUNDERS" indexLabel="01" items={groups.FOUNDERS} accent="gold" />
             <Section title="LEADERS"  indexLabel="02" items={groups.LEADERS}  accent="red"  />
             <Section title="MEMBERS"  indexLabel="03" items={groups.MEMBERS}  accent="white" />
           </div>
-
-          {/* ── Footer credit (scroll down to see) ── */}
-          <div
-            className="flex items-center justify-center relative z-10 mt-8"
-            style={{ background: "#000", borderTop: "1px solid rgba(255,255,255,0.1)", height: "42px" }}
-          >
-            <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.3em", color: "rgba(255,255,255,0.3)" }}>
-              SYSTEM DESIGN BY <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 700 }}>MATOOM WELLESLEY</span>
-            </p>
-          </div>
-          <div className="h-[2px] bg-white w-full relative z-10" />
         </div>
       </main>
     </>
