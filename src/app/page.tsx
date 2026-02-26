@@ -53,7 +53,7 @@ export default function Page() {
             className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 animate-pulse-slow"
             style={{
               backgroundImage:
-                "url(https://img2.pic.in.th/96d43ace-5695-4dd5-a501-2f20a44ecae4.jpg)",
+                "url(https://img2.pic.in.th/20260226203642_1.png)",
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/90 via-[#0a0a0a]/70 to-[#0a0a0a]/90 z-10" />
