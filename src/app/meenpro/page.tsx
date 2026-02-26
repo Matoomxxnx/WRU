@@ -316,14 +316,9 @@ export default function MeenproPage() {
           </div>
         </div>
 
-        {/* ── Bottom border ── */}
-        <div className="fixed bottom-0 inset-x-0 h-[2px] bg-white pointer-events-none" style={{ zIndex: 50 }} />
-
         {/* ── CONTENT ── */}
         <div className="relative z-10 pt-12">
           <div className="max-w-6xl mx-auto px-6 pt-10 pb-6">
-
-            
 
             {/* Title */}
             <h1
@@ -394,11 +389,22 @@ export default function MeenproPage() {
           </div>
 
           {/* Sections */}
-          <div className="max-w-6xl mx-auto px-6 pb-24">
+          <div className="max-w-6xl mx-auto px-6 pb-8">
             <Section title="FOUNDERS" indexLabel="01" items={groups.FOUNDERS} accent="gold" />
             <Section title="LEADERS"  indexLabel="02" items={groups.LEADERS}  accent="red"  />
             <Section title="MEMBERS"  indexLabel="03" items={groups.MEMBERS}  accent="white" />
           </div>
+
+          {/* ── Footer credit (scroll down to see) ── */}
+          <div
+            className="flex items-center justify-center relative z-10 mt-8"
+            style={{ background: "#000", borderTop: "1px solid rgba(255,255,255,0.1)", height: "42px" }}
+          >
+            <p style={{ fontFamily: "'Space Mono', monospace", fontSize: "0.6rem", letterSpacing: "0.3em", color: "rgba(255,255,255,0.3)" }}>
+              SYSTEM DESIGN BY <span style={{ color: "rgba(255,255,255,0.7)", fontWeight: 700 }}>MATOOM WELLESLEY</span>
+            </p>
+          </div>
+          <div className="h-[2px] bg-white w-full relative z-10" />
         </div>
       </main>
     </>
