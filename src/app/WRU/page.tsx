@@ -1,6 +1,6 @@
 import Link from "next/link";
 import gangsRaw from "../../app/data/gangs.json";
-
+export const runtime = "nodejs";
 type GangMember = {
   name: string;
 };
