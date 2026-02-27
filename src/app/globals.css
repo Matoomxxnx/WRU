@@ -1,171 +1,88 @@
-/* ============================= */
-/* RESET */
-/* ============================= */
-
-*,
-*::before,
-*::after { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-body{
-  min-height: 100vh;
-  overflow-x: hidden;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-  color: #fff;
-  background:
-    radial-gradient(900px 520px at 55% 18%, rgba(255,255,255,0.10), rgba(0,0,0,1) 65%),
-    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,1));
-}
-
-a { color: inherit; text-decoration: none; }
-
-/* ============================= */
-/* NOISE (optional) */
-/* ============================= */
-
-.wru-noise{
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: .08;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
-}
-
-/* ============================= */
-/* HERO */
-/* ============================= */
-
+/* HERO FULLSCREEN */
 .neo-hero{
   position: relative;
   min-height: 100vh;
   display: grid;
   place-items: center;
   overflow: hidden;
+  background:
+    radial-gradient(900px 520px at 55% 18%, rgba(255,255,255,0.10), rgba(0,0,0,1) 65%),
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,1));
 }
 
-/* โลโก้ watermark หลังสุด */
-.neo-bg-logo{
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-  z-index: 0;
-  opacity: .045;         /* จางๆ */
-  transform: translateY(4%);
-}
-
-.neo-bg-logo img{
-  width: min(1400px, 120vw); /* ใหญ่เต็มหลัง */
-  height: auto;
-  filter: saturate(0) contrast(1.05);
-}
-
-/* ข้อความเล็กด้านบน */
-.neo-top-note{
-  position: absolute;
-  top: 58px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2;
-  font-size: 9px;
-  letter-spacing: .34em;
-  text-transform: uppercase;
-  color: rgba(255,80,80,0.65);
-}
-
-/* กลุ่มข้อความกลาง */
-.neo-center{
+/* โลโก้กลาง */
+.neo-logo-center{
   position: relative;
   z-index: 2;
-  text-align: center;
-  padding: 24px 16px;
+  display: grid;
+  place-items: center;
 }
 
-.neo-title{
-  font-weight: 900;
-  letter-spacing: .02em;
+.neo-logo-center img{
+  width: min(900px, 70vw);
+  height: auto;
+  filter: drop-shadow(0 40px 80px rgba(0,0,0,0.7));
+}
+
+/* ข้อความบน */
+.neo-top-note{
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: .35em;
   text-transform: uppercase;
-  line-height: .92;
-  text-shadow: 0 18px 50px rgba(0,0,0,0.65);
-  margin: 0;
+  color: rgba(255,80,80,0.65);
+  z-index: 3;
 }
 
-.neo-title-top{
-  font-size: clamp(56px, 9.8vw, 128px);
-  color: rgba(255,255,255,0.95);
+/* ส่วนล่าง */
+.neo-bottom{
+  position: absolute;
+  bottom: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  z-index: 3;
 }
 
-.neo-title-mid{
-  font-size: clamp(44px, 7.2vw, 94px);
-  margin-top: 10px;
-  opacity: .35;
-}
-
-.neo-title-bot{
-  font-size: clamp(56px, 9.8vw, 128px);
-  margin-top: 12px;
-  color: rgba(255,255,255,0.95);
-}
-
-.neo-outline{
-  -webkit-text-stroke: 1px rgba(255,255,255,0.18);
-  color: transparent;
-}
-
-/* เส้นเล็กใต้หัวข้อ */
 .neo-subline{
-  margin-top: 18px;
   font-size: 10px;
   letter-spacing: .28em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.30);
+  color: rgba(255,255,255,0.35);
 }
 
 /* ปุ่ม */
-.neo-actions{
-  margin-top: 18px;
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  align-items: center;
-}
-
 .neo-btn{
-  height: 38px;
-  padding: 0 18px;
+  height: 40px;
+  padding: 0 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(255,255,255,0.22);
-  background: rgba(0,0,0,0.20);
-  color: rgba(255,255,255,0.88);
+  background: rgba(0,0,0,0.25);
+  color: rgba(255,255,255,0.9);
   font-size: 10px;
-  letter-spacing: .26em;
+  letter-spacing: .25em;
   text-transform: uppercase;
   transition: 160ms ease;
 }
 
 .neo-btn:hover{
   background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.34);
-  transform: translateY(-1px);
+  border-color: rgba(255,255,255,0.35);
+  transform: translateY(-2px);
 }
 
-/* แสง vignette */
+/* แสงด้านบน */
 .neo-light{
   position: absolute;
   inset: 0;
-  z-index: 1;
   pointer-events: none;
   opacity: .75;
   background:
-    radial-gradient(560px 320px at 55% 20%, rgba(255,255,255,0.55), rgba(0,0,0,0) 62%),
-    radial-gradient(900px 600px at 70% 70%, rgba(255,255,255,0.08), rgba(0,0,0,0) 68%);
+    radial-gradient(560px 320px at 55% 20%, rgba(255,255,255,0.55), rgba(0,0,0,0) 62%);
 }
