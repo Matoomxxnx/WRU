@@ -2,37 +2,33 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <section className="lx-hero">
-      <div className="lx-hero-left">
-        <div className="lx-eyebrow">WRU COLLECTION — EST. 2024</div>
-        <div className="lx-rule" />
+    <section className="neo-hero">
+      {/* ตัวอักษร WRU ขนาดใหญ่จางๆ ด้านหลัง */}
+      <div className="neo-bg-word" aria-hidden="true">WRU</div>
 
-        <h1 className="lx-title">
-          WHERE <span className="lx-outline">ARE</span> YOU
-        </h1>
+      {/* ข้อความเล็กด้านบน */}
+      <div className="neo-top-note">BORN TO BE ONE FOR WRU</div>
 
-        <p className="lx-desc">
-          A minimal editorial layout — dark, quiet, and deliberate.
-        </p>
+      {/* ข้อความกลางหน้า */}
+      <div className="neo-center">
+        <div className="neo-title neo-title-top">WHERE</div>
+        <div className="neo-title neo-title-mid neo-outline">ARE</div>
+        <div className="neo-title neo-title-bot">YOU</div>
 
-        <div className="lx-actions">
-          <Link href="/members" className="lx-btn">
-            View Members
+        <div className="neo-subline">COLLECTIVE — EST. 2024</div>
+
+        <div className="neo-actions">
+          <Link href="/members" className="neo-btn">
+            MEMBERS
           </Link>
-          <span className="lx-hint">See the full roster</span>
-        </div>
 
-        <div className="lx-meta">
-          <span>WRU / PEOPLE</span>
-          <span className="lx-dot" />
-          <span>BORN TO BE ONE FOR YOU</span>
+          {/* ✅ ลบทางเข้า admin ออก: ไม่มีปุ่ม admin แล้ว */}
+          {/* ถ้าอยากให้มีปุ่มอื่นแทน บอกได้ เช่น "ABOUT" */}
         </div>
       </div>
 
-      <div className="lx-hero-right" aria-hidden="true">
-        <div className="lx-spot" />
-        <div className="lx-grain" />
-      </div>
+      {/* เงา/แสงด้านขวา */}
+      <div className="neo-light" aria-hidden="true" />
     </section>
   );
 }

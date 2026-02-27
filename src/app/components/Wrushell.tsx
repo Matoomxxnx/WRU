@@ -5,22 +5,29 @@ export default function WruShell({ children }: { children: React.ReactNode }) {
     <>
       <div className="wru-noise" />
 
-      <header className="lx-topbar">
-        <div className="lx-topbar-inner">
-          <Link href="/" className="lx-brand">
-            WRU
+      <header className="neo-topbar">
+        <div className="neo-topbar-inner">
+          <Link href="/" className="neo-brand" aria-label="WRU Home">
+            <span className="neo-brand-w">W</span>
+            <span className="neo-brand-r">R</span>
+            <span className="neo-brand-u">U</span>
           </Link>
 
-          <nav className="lx-nav">
-            <Link className="lx-link" href="/">Home</Link>
-            <Link className="lx-link" href="/members">Members</Link>
+          <nav className="neo-nav">
+            <Link className="neo-link" href="/members">Members</Link>
+            <Link className="neo-link" href="/login">Login</Link>
           </nav>
         </div>
       </header>
 
-      <main className="lx-container">{children}</main>
+      <main className="neo-container">{children}</main>
 
-      <footer className="lx-footer">WRU — WHERE ARE YOU</footer>
+      <footer className="neo-ticker" aria-hidden="true">
+        <div className="neo-ticker-track">
+          <span>WRU COLLECTIVE • WHERE ARE YOU • WRU COLLECTIVE • WHERE ARE YOU • </span>
+          <span>WRU COLLECTIVE • WHERE ARE YOU • WRU COLLECTIVE • WHERE ARE YOU • </span>
+        </div>
+      </footer>
     </>
   );
 }
