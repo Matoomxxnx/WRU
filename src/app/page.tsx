@@ -3,10 +3,10 @@ import Link from "next/link";
 export default function Home() {
   return (
     <section className="neo-hero">
-      {/* ตัวอักษร WRU ขนาดใหญ่จางๆ ด้านหลัง */}
+      {/* โลโก้ใหญ่จางๆ ด้านหลัง */}
       <div className="neo-bg-logo" aria-hidden="true">
-  <img src="/uploads/wru-logo.png" alt="" />
-</div>
+        <img src="/uploads/wru-logo.png" alt="" />
+      </div>
 
       {/* ข้อความเล็กด้านบน */}
       <div className="neo-top-note">BORN TO BE ONE FOR WRU</div>
@@ -23,13 +23,10 @@ export default function Home() {
           <Link href="/members" className="neo-btn">
             MEMBERS
           </Link>
-
-          {/* ✅ ลบทางเข้า admin ออก: ไม่มีปุ่ม admin แล้ว */}
-          {/* ถ้าอยากให้มีปุ่มอื่นแทน บอกได้ เช่น "ABOUT" */}
         </div>
       </div>
 
-      {/* เงา/แสงด้านขวา */}
+      {/* เงา/แสง */}
       <div className="neo-light" aria-hidden="true" />
     </section>
   );
