@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 export default function AdminPage() {
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const canSubmit = useMemo(() => code.trim().length > 0 && !loading, [code, loading]);
+
   async function onEnter() {
+    if (!canSubmit) return;
+
     setLoading(true);
     setMsg(null);
 
@@ -19,46 +23,52 @@ export default function AdminPage() {
         body: JSON.stringify({ code }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data.ok) {
         setMsg("รหัสไม่ถูกต้อง — Access Denied");
         return;
       }
 
-      // ✅ เข้าผ่านแล้ว: พาไปหน้า admin dashboard ของคุณ
+      // ✅ ผ่านแล้ว (เปลี่ยนปลายทางได้)
       window.location.href = "/admin/dashboard";
-    } catch (e) {
-      setMsg("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+    } catch {
+      setMsg("เชื่อมต่อไม่สำเร็จ");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1>Admin Access</h1>
+    <section style={{ padding: 24 }}>
+      <div style={{ fontSize: 40, fontWeight: 900, letterSpacing: ".02em" }}>WRU</div>
 
-      <div style={{ marginTop: 12 }}>
-        <div>Access Code</div>
+      <div style={{ marginTop: 16, fontWeight: 700 }}>Admin Access</div>
+
+      <div style={{ marginTop: 10 }}>
+        <div style={{ marginBottom: 6 }}>Access Code</div>
         <input
+          type="password"
           value={code}
           onChange={(e) => setCode(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onEnter()}
-          type="password"
-          style={{ width: 260 }}
+          style={{ width: 260, height: 34 }}
         />
       </div>
 
-      <button onClick={onEnter} disabled={loading} style={{ marginTop: 10 }}>
+      {msg && <div style={{ marginTop: 10, opacity: 0.9 }}>{msg}</div>}
+
+      <button
+        onClick={onEnter}
+        disabled={!canSubmit}
+        style={{ marginTop: 12, height: 34, width: 120 }}
+      >
         {loading ? "Checking..." : "Enter"}
       </button>
 
-      {msg && <div style={{ marginTop: 10, opacity: 0.9 }}>{msg}</div>}
-
-      <div style={{ marginTop: 10 }}>
+      <div style={{ marginTop: 12 }}>
         <Link href="/">← Back</Link>
       </div>
-    </div>
+    </section>
   );
 }
