@@ -13,7 +13,7 @@ type Gang = {
 };
 
 export default function MembersPage() {
-  const gangsData: Gang[] = gangs as Gang[];
+  const gangsData = gangs as unknown as Gang[];
 
   const totalMembers = gangsData.reduce((sum, g) => sum + g.members.length, 0);
 
