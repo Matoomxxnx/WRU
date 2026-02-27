@@ -120,3 +120,63 @@ body{
   border-top: 1px solid rgba(255,255,255,0.10);
   background: rgba(0,0,0,0.35);
 }
+.wru-container{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 16px 56px;
+}
+
+.wru-topbar{
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(10px);
+}
+
+.wru-topbar-inner{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wru-brand{
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+.wru-nav{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wru-navlink{
+  font-size: 12px;
+  color: rgba(255,255,255,0.70);
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.25);
+  transition: 160ms ease;
+}
+.wru-navlink:hover{
+  color: rgba(255,255,255,1);
+  background: rgba(0,0,0,0.55);
+}
+
+.wru-footer{
+  border-top: 1px solid rgba(255,255,255,0.10);
+  padding: 18px 12px;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+}
