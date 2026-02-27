@@ -5,7 +5,7 @@ export default function Home() {
     <section className="neo-hero">
       {/* ตัวอักษร WRU ขนาดใหญ่จางๆ ด้านหลัง */}
       <div className="neo-bg-logo" aria-hidden="true">
-  <img src="/wru-logo.png" alt="" />
+  <img src="/uploads/wru-logo.png" alt="" />
 </div>
 
       {/* ข้อความเล็กด้านบน */}
