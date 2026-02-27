@@ -4,7 +4,9 @@ export default function Home() {
   return (
     <section className="neo-hero">
       {/* ตัวอักษร WRU ขนาดใหญ่จางๆ ด้านหลัง */}
-      <div className="neo-bg-word" aria-hidden="true">WRU</div>
+      <div className="neo-bg-logo" aria-hidden="true">
+  <img src="/wru-logo.png" alt="" />
+</div>
 
       {/* ข้อความเล็กด้านบน */}
       <div className="neo-top-note">BORN TO BE ONE FOR WRU</div>

@@ -975,3 +975,18 @@ a {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+.neo-bg-logo{
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: .06;              /* ความจาง */
+  transform: translateY(2%);
+  filter: blur(0px);
+}
+
+.neo-bg-logo img{
+  width: min(78vw, 980px);
+  height: auto;
+}
