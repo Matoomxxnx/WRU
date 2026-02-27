@@ -3,8 +3,6 @@ import Link from "next/link";
 const items = [
   { href: "/", label: "Home" },
   { href: "/members", label: "Members" },
-  { href: "/wellesley", label: "Wellesley" },
-  { href: "/admin", label: "Admin" },
 ];
 
 export default function WruShell({ children }: { children: React.ReactNode }) {
