@@ -1,5 +1,5 @@
 import Link from "next/link";
-import gangsRaw from "@/app/data/gangs.json";
+import gangsRaw from "../../app/data/gangs.json";
 
 type GangMember = {
   name: string;
