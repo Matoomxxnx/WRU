@@ -1,28 +1,18 @@
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const { password } = await req.json();
+  const body = await req.json().catch(() => ({}));
+  const code = String(body?.code ?? "").trim();
 
-  if (!process.env.ADMIN_PASSWORD) {
+  const real = String(process.env.ADMIN_CODE ?? "").trim();
+
+  if (!real) {
     return NextResponse.json(
-      { ok: false, message: "Missing ADMIN_PASSWORD env" },
+      { ok: false, message: "ADMIN_CODE is not set on server" },
       { status: 500 }
     );
   }
 
-  if (password !== process.env.ADMIN_PASSWORD) {
-    return NextResponse.json({ ok: false, message: "รหัสไม่ถูกต้อง" }, { status: 401 });
-  }
-
-  const res = NextResponse.json({ ok: true });
-
-  res.cookies.set("admin", "1", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    maxAge: 60 * 60 * 24 * 7,
-  });
-
-  return res;
+  const ok = code === real;
+  return NextResponse.json({ ok }, { status: ok ? 200 : 401 });
 }

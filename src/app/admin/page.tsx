@@ -1,50 +1,64 @@
 "use client";
+
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-export default function AdminLogin() {
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+export default function AdminPage() {
+  const [code, setCode] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  async function handleLogin() {
+  async function onEnter() {
     setLoading(true);
-    setError("");
-    const res = await fetch("/api/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-    if (res.ok) {
-      router.push("/admin/dashboard");
-    } else {
-      setError("รหัสผ่านไม่ถูกต้อง");
+    setMsg(null);
+
+    try {
+      const res = await fetch("/api/admin-auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.ok) {
+        setMsg("รหัสไม่ถูกต้อง — Access Denied");
+        return;
+      }
+
+      // ✅ เข้าผ่านแล้ว: พาไปหน้า admin dashboard ของคุณ
+      window.location.href = "/admin/dashboard";
+    } catch (e) {
+      setMsg("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
-    <main className="min-h-screen bg-black flex items-center justify-center">
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-8 w-full max-w-sm flex flex-col gap-4">
-        <h1 className="text-white font-black uppercase tracking-widest text-xl">ADMIN</h1>
+    <div style={{ padding: 24 }}>
+      <h1>Admin Access</h1>
+
+      <div style={{ marginTop: 12 }}>
+        <div>Access Code</div>
         <input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && onEnter()}
           type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-          className="bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 outline-none focus:border-white/30"
+          style={{ width: 260 }}
         />
-        {error && <p className="text-red-400 text-sm">{error}</p>}
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="bg-white text-black font-bold uppercase tracking-widest rounded-xl py-3 hover:bg-white/90 transition disabled:opacity-50"
-        >
-          {loading ? "..." : "เข้าสู่ระบบ"}
-        </button>
       </div>
-    </main>
+
+      <button onClick={onEnter} disabled={loading} style={{ marginTop: 10 }}>
+        {loading ? "Checking..." : "Enter"}
+      </button>
+
+      {msg && <div style={{ marginTop: 10, opacity: 0.9 }}>{msg}</div>}
+
+      <div style={{ marginTop: 10 }}>
+        <Link href="/">← Back</Link>
+      </div>
+    </div>
   );
 }
