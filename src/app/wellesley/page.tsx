@@ -1,5 +1,5 @@
 import gangsData from '../data/gangs.json';
-import MemberCard from '../components/MemberCard'; // อย่าลืมสร้างไฟล์นี้ตามที่ผมเขียนให้ก่อนหน้านะครับ
+import MemberCard from '../components/WruCard'; // อย่าลืมสร้างไฟล์นี้ตามที่ผมเขียนให้ก่อนหน้านะครับ
 
 export default function WellesleyPage() {
   const members = gangsData.wellesley;
