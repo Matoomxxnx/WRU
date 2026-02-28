@@ -2,102 +2,69 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [code, setCode] = useState("");
-  const [error, setError] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!code) return;
+  async function onLogin() {
     setLoading(true);
-    setError("");
+    setMsg(null);
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
 
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: code }),
-    });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j?.ok) {
+        setMsg(j?.message ?? "รหัสไม่ถูกต้อง");
+        return;
+      }
 
-    if (res.ok) {
       router.push("/admin/dashboard");
-    } else {
-      setError("รหัสไม่ถูกต้อง — Access Denied");
+      router.refresh();
+    } finally {
       setLoading(false);
-      setCode("");
     }
   }
 
   return (
-    <main
-      className="min-h-screen bg-black flex flex-col items-center justify-center"
-      style={{ fontFamily: "'Barlow Condensed', sans-serif", cursor: "crosshair" }}
-    >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&display=swap');
-        @keyframes fadeUp { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
-        .fu1 { opacity:0; animation: fadeUp 0.8s ease 0.1s forwards; }
-        .fu2 { opacity:0; animation: fadeUp 0.8s ease 0.3s forwards; }
-        .fu3 { opacity:0; animation: fadeUp 0.8s ease 0.5s forwards; }
-      `}</style>
-
-      {/* Ghost BG */}
-      <div className="fixed inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden>
-        <span className="text-[35vw] font-black tracking-tighter text-white leading-none"
-          style={{ fontFamily: "'Bebas Neue', sans-serif", opacity: 0.018 }}>
-          WRU
-        </span>
-      </div>
-
-      <div className="relative z-10 w-full max-w-xs px-8">
-        {/* Logo */}
-        <div className="fu1 text-center mb-14">
-          <Link href="/">
-            <h1 className="text-7xl tracking-[0.3em] inline-block"
-              style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-              W<span className="text-red-600">R</span>U
-            </h1>
-          </Link>
-          <p className="text-xs tracking-[0.4em] text-zinc-700 uppercase mt-2">Admin Access</p>
+    <main className="min-h-screen bg-black text-white flex items-center justify-center px-4">
+      <div className="w-full max-w-md border border-zinc-800 bg-zinc-950/40 p-8">
+        <div className="mb-6">
+          <div className="text-xs tracking-[0.4em] text-zinc-500 uppercase">WRU Admin</div>
+          <h1 className="text-4xl mt-2 tracking-[0.15em] uppercase">Login</h1>
+          <div className="text-sm text-zinc-500 mt-2">ใส่รหัสเพื่อเข้าหลังบ้าน</div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="fu2 space-y-5">
-          <div>
-            <label className="block text-xs tracking-[0.3em] text-zinc-600 uppercase mb-3">
-              Access Code
-            </label>
-            <input
-              type="password"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="••••••••"
-              autoFocus
-              className="w-full bg-transparent border border-zinc-800 text-white text-center text-2xl tracking-[0.5em] py-4 px-4 outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-800"
-              style={{ fontFamily: "'Bebas Neue', sans-serif" }}
-            />
-          </div>
+        <label className="block text-xs tracking-[0.3em] text-zinc-500 uppercase mb-2">
+          Admin Password
+        </label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && onLogin()}
+          className="w-full bg-black border border-zinc-800 px-4 py-3 outline-none focus:border-zinc-500"
+          placeholder="••••••••"
+        />
 
-          {error && (
-            <p className="text-red-600 text-xs tracking-[0.25em] uppercase text-center">{error}</p>
-          )}
+        {msg && <div className="mt-3 text-sm text-red-400">{msg}</div>}
 
-          <button
-            type="submit"
-            disabled={loading || !code}
-            className="w-full border border-white text-white py-4 text-xs tracking-[0.4em] uppercase font-semibold hover:bg-white hover:text-black transition-all duration-200 disabled:opacity-25 disabled:cursor-not-allowed"
-          >
-            {loading ? "Verifying..." : "Enter"}
-          </button>
-        </form>
+        <button
+          onClick={onLogin}
+          disabled={loading || !password}
+          className="mt-6 w-full border border-white px-4 py-3 text-xs tracking-[0.35em] uppercase hover:bg-white hover:text-black transition disabled:opacity-30"
+        >
+          {loading ? "Logging in..." : "Login"}
+        </button>
 
-        <div className="fu3 mt-10 text-center">
-          <Link href="/" className="text-xs tracking-[0.3em] text-zinc-700 uppercase hover:text-zinc-400 transition-colors">
-            ← Back
-          </Link>
+        <div className="mt-6 text-xs text-zinc-600">
+          หากเข้าไม่ได้ ให้เช็ค env <span className="text-zinc-400">ADMIN_PASSWORD</span> บน Vercel
         </div>
       </div>
     </main>
