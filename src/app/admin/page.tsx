@@ -1,21 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export default function AdminPage() {
+export default function AdminLoginPage() {
+  const router = useRouter();
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const canSubmit = useMemo(() => code.trim().length > 0 && !loading, [code, loading]);
-
-  async function onEnter() {
-    if (!canSubmit) return;
-
+  async function submit() {
     setLoading(true);
     setMsg(null);
-
     try {
       const res = await fetch("/api/admin-auth", {
         method: "POST",
@@ -23,52 +20,73 @@ export default function AdminPage() {
         body: JSON.stringify({ code }),
       });
 
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok || !data.ok) {
-        setMsg("รหัสไม่ถูกต้อง — Access Denied");
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j?.ok) {
+        setMsg(j?.message ?? "รหัสไม่ถูกต้อง — Access Denied");
         return;
       }
 
-      // ✅ ผ่านแล้ว (เปลี่ยนปลายทางได้)
-      window.location.href = "/admin/dashboard";
-    } catch {
-      setMsg("เชื่อมต่อไม่สำเร็จ");
+      router.push("/admin/dashboard");
+      router.refresh();
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <section style={{ padding: 24 }}>
-      <div style={{ fontSize: 40, fontWeight: 900, letterSpacing: ".02em" }}>WRU</div>
+    <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+      <div className="relative w-full max-w-xl">
+        {/* background huge WRU */}
+        <div className="pointer-events-none select-none absolute inset-0 flex items-center justify-center opacity-[0.08]">
+          <div className="text-[220px] font-black tracking-[0.2em] leading-none">WRU</div>
+        </div>
 
-      <div style={{ marginTop: 16, fontWeight: 700 }}>Admin Access</div>
+        <div className="relative mx-auto w-full max-w-md text-center">
+          {/* Logo */}
+          <div className="text-6xl font-black tracking-[0.25em]">
+            W<span className="text-red-600">R</span>U
+          </div>
+          <div className="mt-2 text-[10px] tracking-[0.45em] text-zinc-500 uppercase">
+            Admin Access
+          </div>
 
-      <div style={{ marginTop: 10 }}>
-        <div style={{ marginBottom: 6 }}>Access Code</div>
-        <input
-          type="password"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && onEnter()}
-          style={{ width: 260, height: 34 }}
-        />
+          <div className="mt-10 text-[10px] tracking-[0.45em] text-zinc-500 uppercase text-left">
+            Access Code
+          </div>
+
+          <input
+            type="password"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+            className="mt-2 w-full bg-black border border-zinc-700 px-4 py-4 text-center tracking-[0.35em] outline-none focus:border-zinc-400"
+            placeholder="••••••••"
+          />
+
+          {msg && (
+            <div className="mt-3 text-xs tracking-wide text-red-400">
+              {msg}
+            </div>
+          )}
+
+          <button
+            onClick={submit}
+            disabled={loading || !code}
+            className="mt-6 w-full border border-zinc-400 py-4 text-[11px] tracking-[0.45em] uppercase hover:border-white hover:text-white transition disabled:opacity-40"
+          >
+            {loading ? "..." : "Enter"}
+          </button>
+
+          <div className="mt-6">
+            <Link
+              href="/"
+              className="text-[11px] tracking-[0.35em] text-zinc-400 hover:text-white transition uppercase"
+            >
+              ← Back
+            </Link>
+          </div>
+        </div>
       </div>
-
-      {msg && <div style={{ marginTop: 10, opacity: 0.9 }}>{msg}</div>}
-
-      <button
-        onClick={onEnter}
-        disabled={!canSubmit}
-        style={{ marginTop: 12, height: 34, width: 120 }}
-      >
-        {loading ? "Checking..." : "Enter"}
-      </button>
-
-      <div style={{ marginTop: 12 }}>
-        <Link href="/">← Back</Link>
-      </div>
-    </section>
+    </main>
   );
 }
