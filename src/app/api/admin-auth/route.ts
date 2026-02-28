@@ -9,10 +9,10 @@ export async function GET() {
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({} as any));
   const input = String((body as any)?.code ?? "").trim();
-  const real = String(process.env.ADMIN_CODE ?? "").trim();
+  const real = String(process.env.ADMIN_PASSWORD ?? "").trim();
 
   if (!real) {
-    return NextResponse.json({ ok: false, message: "ADMIN_CODE not set" }, { status: 500 });
+    return NextResponse.json({ ok: false, message: "ADMIN_PASSWORD not set" }, { status: 500 });
   }
 
   const ok = input === real;
