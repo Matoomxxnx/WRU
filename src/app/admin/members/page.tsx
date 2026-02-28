@@ -28,12 +28,28 @@ export default function AdminMembers() {
   useEffect(() => { loadData(); }, []);
 
   async function loadData() {
-    setLoading(true);
-    const [mRes, gRes] = await Promise.all([fetch("/api/members"), fetch("/api/gangs")]);
-    setMembers(await mRes.json());
-    setGangs(await gRes.json());
+  setLoading(true);
+
+  try {
+    const [mRes, gRes] = await Promise.all([
+      fetch("/api/members"),
+      fetch("/api/gangs"),
+    ]);
+
+    const mJson = await mRes.json();
+    const gJson = await gRes.json();
+
+    // ดึงของจากกล่องออกมา
+    setMembers(mJson.data || []);
+    setGangs(gJson.data || []);
+  } catch (err) {
+    console.error(err);
+    setMembers([]);
+    setGangs([]);
+  } finally {
     setLoading(false);
   }
+}
 
   async function handleSave() {
     setSaving(true);
