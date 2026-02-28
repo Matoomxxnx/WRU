@@ -25,13 +25,23 @@ export default function AdminMembers() {
   const [selected, setSelected] = useState<Member | null>(null);
   const [form, setForm] = useState({ name: "", gang_slug: "" });
   const [saving, setSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
+  function pickArray(json: any): any[] {
+    if (Array.isArray(json)) return json;
+    if (Array.isArray(json?.members)) return json.members;
+    if (Array.isArray(json?.gangs)) return json.gangs;
+    if (Array.isArray(json?.data)) return json.data;
+    return [];
+  }
+
   async function loadData() {
     setLoading(true);
+    setErrorMsg(null);
 
     try {
       const [mRes, gRes] = await Promise.all([
@@ -42,25 +52,23 @@ export default function AdminMembers() {
       const mJson: any = await mRes.json().catch(() => ({}));
       const gJson: any = await gRes.json().catch(() => ({}));
 
-      // members รองรับหลายรูปแบบ
-      const mRows: Member[] =
-        Array.isArray(mJson) ? mJson :
-        Array.isArray(mJson.members) ? mJson.members :
-        Array.isArray(mJson.data) ? mJson.data :
-        [];
+      // ถ้า API ไม่ ok ให้โชว์ข้อความ แต่ไม่ทำให้หน้า crash
+      if (!mRes.ok) {
+        setErrorMsg((prev) => prev ?? `Members API error: ${mRes.status} ${mJson?.message ?? ""}`.trim());
+      }
+      if (!gRes.ok) {
+        setErrorMsg((prev) => prev ?? `Gangs API error: ${gRes.status} ${gJson?.message ?? ""}`.trim());
+      }
 
-      // gangs รองรับ data
-      const gRows: Gang[] =
-        Array.isArray(gJson) ? gJson :
-        Array.isArray(gJson.gangs) ? gJson.gangs :
-        Array.isArray(gJson.data) ? gJson.data :
-        [];
+      const mRows = (mRes.ok ? pickArray(mJson) : []) as Member[];
+      const gRows = (gRes.ok ? pickArray(gJson) : []) as Gang[];
 
-      setMembers(mRows);
-      setGangs(gRows);
-    } catch {
+      setMembers(Array.isArray(mRows) ? mRows : []);
+      setGangs(Array.isArray(gRows) ? gRows : []);
+    } catch (e: any) {
       setMembers([]);
       setGangs([]);
+      setErrorMsg(e?.message ?? "Load failed");
     } finally {
       setLoading(false);
     }
@@ -68,16 +76,24 @@ export default function AdminMembers() {
 
   async function handleSave() {
     setSaving(true);
+    setErrorMsg(null);
+
     try {
       const isEdit = modal === "edit" && selected;
       const url = isEdit ? `/api/members/${selected!.id}` : "/api/members";
       const method = isEdit ? "PUT" : "POST";
 
-      await fetch(url, {
+      const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
+
+      if (!res.ok) {
+        const j: any = await res.json().catch(() => ({}));
+        setErrorMsg(j?.message ?? `Save failed: ${res.status}`);
+        return;
+      }
 
       await loadData();
       setModal(null);
@@ -89,13 +105,22 @@ export default function AdminMembers() {
   async function handleDelete(member: Member) {
     if (!confirm(`ลบ ${member.name}?`)) return;
 
-    await fetch(`/api/members/${member.id}`, { method: "DELETE" });
+    setErrorMsg(null);
+    const res = await fetch(`/api/members/${member.id}`, { method: "DELETE" });
+
+    if (!res.ok) {
+      const j: any = await res.json().catch(() => ({}));
+      setErrorMsg(j?.message ?? `Delete failed: ${res.status}`);
+      return;
+    }
+
     await loadData();
   }
 
   function openAdd() {
-    const first = gangs[0];
-    const gangValue = (first?.slug ?? first?.id ?? "") as string;
+    const list = Array.isArray(gangs) ? gangs : [];
+    const first = list[0];
+    const gangValue = String(first?.slug ?? first?.id ?? "");
 
     setSelected(null);
     setForm({ name: "", gang_slug: gangValue });
@@ -112,10 +137,13 @@ export default function AdminMembers() {
     String(m?.name ?? "").toLowerCase().includes(search.toLowerCase())
   );
 
+  const gangsSafe = Array.isArray(gangs) ? gangs : [];
+
   return (
     <main className="min-h-screen bg-black text-white">
       <header className="border-b border-zinc-900 px-8 py-4 flex justify-between">
         <Link href="/admin/dashboard">← Dashboard</Link>
+        <button onClick={loadData} className="border px-3 py-1 text-sm">Reload</button>
       </header>
 
       <div className="px-8 py-10 max-w-4xl mx-auto">
@@ -125,6 +153,12 @@ export default function AdminMembers() {
             + Add
           </button>
         </div>
+
+        {errorMsg && (
+          <div className="mb-4 border border-red-700 bg-red-950/30 text-red-200 px-4 py-3 text-sm">
+            {errorMsg}
+          </div>
+        )}
 
         <input
           type="text"
@@ -172,11 +206,13 @@ export default function AdminMembers() {
               onChange={(e) => setForm({ ...form, gang_slug: e.target.value })}
               className="w-full mb-4 border px-3 py-2 bg-black"
             >
-              {gangs.map((g) => {
-                const value = (g.slug ?? g.id) as string;
+              {gangsSafe.map((g: any, i: number) => {
+                const id = String(g?.id ?? i);
+                const name = String(g?.name ?? "Unnamed");
+                const value = String(g?.slug ?? g?.id ?? "");
                 return (
-                  <option key={g.id} value={value}>
-                    {g.name}
+                  <option key={id} value={value}>
+                    {name}
                   </option>
                 );
               })}
@@ -188,6 +224,13 @@ export default function AdminMembers() {
               className="w-full border py-2"
             >
               {saving ? "Saving..." : "Save"}
+            </button>
+
+            <button
+              onClick={() => setModal(null)}
+              className="w-full border py-2 mt-2 opacity-80"
+            >
+              Close
             </button>
           </div>
         </div>
