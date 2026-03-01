@@ -1,34 +1,28 @@
 import Link from "next/link";
-import gangsData from "../data/gangs.json";
+
+// บังคับให้หน้าจอนี้เช็กข้อมูลใหม่เสมอ
+export const dynamic = "force-dynamic";
 
 type Member = {
   name: string;
   role?: string;
-  group?: string;
-  avatar?: string;
+  gang_slug?: string;
+  image_url?: string;
 };
 
-function getAllMembers(): (Member & { groupKey: string })[] {
-  const g: any = gangsData || {};
-  const out: (Member & { groupKey: string })[] = [];
-
-  for (const key of Object.keys(g)) {
-    const arr = Array.isArray(g[key]) ? g[key] : [];
-    for (const m of arr) {
-      out.push({
-        name: m?.name ?? "Unknown",
-        role: m?.role ?? "",
-        group: m?.group ?? key,
-        avatar: m?.avatar_url ?? m?.avatar ?? "",
-        groupKey: key,
-      });
-    }
-  }
-  return out;
+// ฟังก์ชันดึงข้อมูลจาก API ของคุณ
+async function getMembers(): Promise<Member[]> {
+  // เปลี่ยน URL เป็นของเว็บคุณ (ใช้ Relative path ได้ใน Next.js Server Component)
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'https://wru.vercel.app'}/api/members`, {
+    cache: 'no-store'
+  });
+  
+  if (!res.ok) return [];
+  return res.json();
 }
 
-export default function MembersPage() {
-  const members = getAllMembers();
+export default async function MembersPage() {
+  const members = await getMembers();
 
   return (
     <section className="mb-wrap">
@@ -46,12 +40,11 @@ export default function MembersPage() {
 
       <div className="mb-grid">
         {members.map((m, idx) => (
-          <article key={`${m.groupKey}-${m.name}-${idx}`} className="mb-card">
+          <article key={`${m.name}-${idx}`} className="mb-card">
             <div className="mb-card-top">
               <div className="mb-avatar">
-                {m.avatar ? (
-                  // ใช้ img ปกติพอ (ไม่ง้อ next/image)
-                  <img src={m.avatar} alt={m.name} />
+                {m.image_url ? (
+                  <img src={m.image_url} alt={m.name} />
                 ) : (
                   <span>{m.name.slice(0, 1).toUpperCase()}</span>
                 )}
@@ -59,12 +52,12 @@ export default function MembersPage() {
 
               <div className="mb-meta">
                 <div className="mb-name">{m.name}</div>
-                <div className="mb-role">{m.role || "—"}</div>
+                <div className="mb-role">{m.role || "MEMBER"}</div>
               </div>
             </div>
 
             <div className="mb-tagrow">
-              <span className="mb-tag">{(m.group || m.groupKey).toUpperCase()}</span>
+              <span className="mb-tag">{(m.gang_slug || "No Gang").toUpperCase()}</span>
               <span className="mb-tag mb-tag-ghost">ACTIVE</span>
             </div>
           </article>
