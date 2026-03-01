@@ -46,7 +46,7 @@ export default function AdminMembers() {
     const url = isEdit ? `/api/members/${selected!.id}` : "/api/members";
     const method = isEdit ? "PUT" : "POST";
     await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-    await logAction(isEdit ? "EDIT_MEMBER" : "ADD_MEMBER", `${form.name} (${form.gang_slug})`);
+    await logAction(isEdit ? "EDIT_MEMBER" : "ADD_MEMBER", form.name);
     await loadData();
     setModal(null);
     setSaving(false);
@@ -95,14 +95,13 @@ export default function AdminMembers() {
         .adm-input:focus { border-color: #444; }
         .adm-input::placeholder { color: #333; }
         .adm-table { border: 1px solid #111; width: 100%; }
-        .adm-thead { display: grid; grid-template-columns: 48px 1fr 120px 60px 100px; gap: 16px; padding: 12px 24px; background: #0a0a0a; border-bottom: 1px solid #111; }
+        .adm-thead { display: grid; grid-template-columns: 48px 1fr 60px 100px; gap: 16px; padding: 12px 24px; background: #0a0a0a; border-bottom: 1px solid #111; }
         .adm-th { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: #444; }
-        .adm-row { display: grid; grid-template-columns: 48px 1fr 120px 60px 100px; gap: 16px; padding: 14px 24px; border-bottom: 1px solid #0d0d0d; transition: background 0.15s; align-items: center; }
+        .adm-row { display: grid; grid-template-columns: 48px 1fr 60px 100px; gap: 16px; padding: 14px 24px; border-bottom: 1px solid #0d0d0d; transition: background 0.15s; align-items: center; }
         .adm-row:hover { background: #080808; }
         .adm-num { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: #222; line-height: 1; }
         .adm-row:hover .adm-num { color: #cc2200; }
         .adm-name { font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-size: 14px; }
-        .adm-gang { font-size: 11px; letter-spacing: 0.2em; color: #555; text-transform: uppercase; }
         .adm-avatar { width: 36px; height: 36px; border-radius: 50%; overflow: hidden; background: #111; border: 1px solid #222; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #444; }
         .adm-avatar img { width: 100%; height: 100%; object-fit: cover; }
         .adm-actions { display: flex; align-items: center; gap: 16px; }
@@ -120,14 +119,13 @@ export default function AdminMembers() {
         .adm-label { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: #555; display: block; margin-bottom: 8px; }
         .adm-hint { font-size: 10px; letter-spacing: 0.1em; color: #333; margin-top: 6px; }
         .adm-field { margin-bottom: 18px; }
-        .adm-select { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 12px 16px; font-size: 13px; outline: none; font-family: inherit; }
         .adm-divider { border: none; border-top: 1px solid #1a1a1a; margin: 20px 0; }
         .adm-section-label { font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase; color: #333; margin-bottom: 16px; }
+        .adm-preview { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; background: #111; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #333; }
+        .adm-preview img { width: 100%; height: 100%; object-fit: cover; }
         .adm-save { margin-top: 28px; width: 100%; border: 1px solid rgba(255,255,255,0.8); background: transparent; color: #fff; padding: 14px; font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; cursor: pointer; transition: 0.2s; font-family: inherit; }
         .adm-save:hover:not(:disabled) { background: #fff; color: #000; }
         .adm-save:disabled { opacity: 0.25; cursor: not-allowed; }
-        .adm-preview { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; background: #111; border: 1px solid #222; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #333; }
-        .adm-preview img { width: 100%; height: 100%; object-fit: cover; }
       `}</style>
 
       <header className="adm-header">
@@ -153,7 +151,6 @@ export default function AdminMembers() {
           <div className="adm-thead">
             <div className="adm-th">#</div>
             <div className="adm-th">Name</div>
-            <div className="adm-th">Gang</div>
             <div className="adm-th">Photo</div>
             <div className="adm-th">Action</div>
           </div>
@@ -166,12 +163,9 @@ export default function AdminMembers() {
               <div key={member.id} className="adm-row">
                 <div className="adm-num">{String(idx + 1).padStart(2, "0")}</div>
                 <div className="adm-name">{member.name}</div>
-                <div className="adm-gang">{member.gang_slug}</div>
                 <div>
                   <div className="adm-avatar">
-                    {member.image_url
-                      ? <img src={member.image_url} alt={member.name} />
-                      : "—"}
+                    {member.image_url ? <img src={member.image_url} alt={member.name} /> : "—"}
                   </div>
                 </div>
                 <div className="adm-actions">
@@ -199,15 +193,6 @@ export default function AdminMembers() {
               <label className="adm-label">Name</label>
               <input className="adm-input" style={{ marginBottom: 0 }} type="text"
                 value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            </div>
-
-            {/* Gang */}
-            <div className="adm-field">
-              <label className="adm-label">Gang</label>
-              <select className="adm-select" value={form.gang_slug}
-                onChange={(e) => setForm({ ...form, gang_slug: e.target.value })}>
-                {gangs.map((g) => <option key={g.slug} value={g.slug}>{g.name}</option>)}
-              </select>
             </div>
 
             <hr className="adm-divider" />
