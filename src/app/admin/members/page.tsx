@@ -28,28 +28,25 @@ export default function AdminMembers() {
   useEffect(() => { loadData(); }, []);
 
   async function loadData() {
-  setLoading(true);
-
-  try {
-    const [mRes, gRes] = await Promise.all([
-      fetch("/api/members"),
-      fetch("/api/gangs"),
-    ]);
-
-    const mJson = await mRes.json();
-    const gJson = await gRes.json();
-
-    // ดึงของจากกล่องออกมา
-    setMembers(mJson.data || []);
-    setGangs(gJson.data || []);
-  } catch (err) {
-    console.error(err);
-    setMembers([]);
-    setGangs([]);
-  } finally {
-    setLoading(false);
+    setLoading(true);
+    try {
+      const [mRes, gRes] = await Promise.all([
+        fetch("/api/members"),
+        fetch("/api/gangs"),
+      ]);
+      const mJson = await mRes.json();
+      const gJson = await gRes.json();
+      // รองรับทั้ง array โดยตรง และ { data: [] }
+      setMembers(Array.isArray(mJson) ? mJson : mJson.data ?? []);
+      setGangs(Array.isArray(gJson) ? gJson : gJson.data ?? []);
+    } catch (err) {
+      console.error(err);
+      setMembers([]);
+      setGangs([]);
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   async function handleSave() {
     setSaving(true);
@@ -80,96 +77,119 @@ export default function AdminMembers() {
   const filtered = members.filter((m) => m.name.toLowerCase().includes(search.toLowerCase()));
 
   return (
-    <main className="min-h-screen bg-black text-white" style={{ fontFamily: "'Barlow Condensed', sans-serif" }}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&display=swap');`}</style>
+    <main style={{ minHeight: "100vh", background: "#000", color: "#fff", fontFamily: "ui-sans-serif, system-ui, sans-serif" }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&display=swap');
+        * { box-sizing: border-box; }
+        .adm-header { border-bottom: 1px solid #111; background: #000; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+        .adm-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.3em; color: #fff; text-decoration: none; }
+        .adm-logo span { color: #cc2200; }
+        .adm-link { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #555; text-decoration: none; }
+        .adm-link:hover { color: #fff; }
+        .adm-body { padding: 40px 32px; max-width: 900px; margin: 0 auto; }
+        .adm-kicker { font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; color: #cc2200; margin-bottom: 4px; }
+        .adm-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px, 8vw, 72px); line-height: 1; letter-spacing: 0.02em; margin: 0 0 32px; }
+        .adm-toprow { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 32px; }
+        .adm-btn { border: 1px solid rgba(255,255,255,0.8); background: transparent; color: #fff; padding: 12px 24px; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .adm-btn:hover { background: #fff; color: #000; }
+        .adm-input { width: 100%; background: transparent; border: 1px solid #222; color: #fff; padding: 12px 16px; font-size: 13px; letter-spacing: 0.1em; outline: none; margin-bottom: 16px; }
+        .adm-input:focus { border-color: #444; }
+        .adm-table { border: 1px solid #111; width: 100%; }
+        .adm-thead { display: grid; grid-template-columns: 48px 1fr 140px 100px; gap: 16px; padding: 12px 24px; background: #0a0a0a; border-bottom: 1px solid #111; }
+        .adm-th { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: #444; }
+        .adm-row { display: grid; grid-template-columns: 48px 1fr 140px 100px; gap: 16px; padding: 16px 24px; border-bottom: 1px solid #0d0d0d; transition: background 0.15s; }
+        .adm-row:hover { background: #080808; }
+        .adm-num { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: #222; line-height: 1; }
+        .adm-row:hover .adm-num { color: #cc2200; }
+        .adm-name { font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-size: 14px; display: flex; align-items: center; }
+        .adm-gang { font-size: 11px; letter-spacing: 0.2em; color: #555; text-transform: uppercase; display: flex; align-items: center; }
+        .adm-actions { display: flex; align-items: center; gap: 16px; }
+        .adm-act { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; background: none; border: none; color: #444; cursor: pointer; }
+        .adm-act:hover { color: #fff; }
+        .adm-act-del:hover { color: #cc2200; }
+        .adm-empty { padding: 64px 24px; text-align: center; font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; color: #333; }
+        .adm-count { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #333; margin-top: 12px; }
+        /* MODAL */
+        .adm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+        .adm-modal { background: #0a0a0a; border: 1px solid #222; width: 100%; max-width: 440px; padding: 32px; }
+        .adm-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+        .adm-modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.1em; }
+        .adm-close { font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #444; background: none; border: none; cursor: pointer; }
+        .adm-close:hover { color: #fff; }
+        .adm-label { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: #444; display: block; margin-bottom: 8px; }
+        .adm-field { margin-bottom: 16px; }
+        .adm-select { width: 100%; background: #000; border: 1px solid #222; color: #fff; padding: 12px 16px; font-size: 13px; outline: none; }
+        .adm-save { margin-top: 32px; width: 100%; border: 1px solid rgba(255,255,255,0.8); background: transparent; color: #fff; padding: 14px; font-size: 11px; letter-spacing: 0.4em; text-transform: uppercase; cursor: pointer; transition: 0.2s; }
+        .adm-save:hover:not(:disabled) { background: #fff; color: #000; }
+        .adm-save:disabled { opacity: 0.25; cursor: not-allowed; }
+      `}</style>
 
-      {/* TOPBAR */}
-      <header className="border-b border-zinc-900 bg-black px-8 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/dashboard"><span className="text-xl tracking-[0.3em]" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>W<span className="text-red-600">R</span>U</span></Link>
-          <span className="text-xs tracking-[0.3em] text-zinc-600 uppercase">/ Members</span>
+      {/* HEADER */}
+      <header className="adm-header">
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <Link href="/admin/dashboard" className="adm-logo">W<span>R</span>U</Link>
+          <span style={{ fontSize: "11px", letterSpacing: "0.3em", textTransform: "uppercase", color: "#333" }}>/ Members</span>
         </div>
-        <Link href="/admin/dashboard" className="text-xs tracking-[0.3em] text-zinc-600 uppercase hover:text-white transition-colors">← Dashboard</Link>
+        <Link href="/admin/dashboard" className="adm-link">← Dashboard</Link>
       </header>
 
-      <div className="px-8 py-10 max-w-4xl mx-auto">
-        <div className="flex items-end justify-between mb-8">
+      <div className="adm-body">
+        <div className="adm-toprow">
           <div>
-            <p className="text-xs tracking-[0.4em] text-red-600 uppercase mb-1">Admin</p>
-            <h1 className="text-7xl leading-none uppercase" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>Members</h1>
+            <div className="adm-kicker">Admin</div>
+            <h1 className="adm-title">Members</h1>
           </div>
-          <button onClick={openAdd} className="border border-white text-white px-6 py-3 text-xs tracking-[0.3em] uppercase font-semibold hover:bg-white hover:text-black transition-all duration-200">
-            + Add Member
-          </button>
+          <button className="adm-btn" onClick={openAdd}>+ Add Member</button>
         </div>
 
-        {/* Search */}
-        <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)}
-          className="w-full bg-black border border-zinc-800 text-white text-sm tracking-wider py-3 px-4 outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-700 mb-4" />
+        <input className="adm-input" type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
 
-        {/* Table */}
-        <div className="border border-zinc-900">
-          <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-zinc-950 border-b border-zinc-900">
-            <div className="col-span-1 text-xs tracking-[0.3em] text-zinc-600 uppercase">#</div>
-            <div className="col-span-5 text-xs tracking-[0.3em] text-zinc-600 uppercase">Name</div>
-            <div className="col-span-4 text-xs tracking-[0.3em] text-zinc-600 uppercase">Gang</div>
-            <div className="col-span-2 text-xs tracking-[0.3em] text-zinc-600 uppercase">Action</div>
+        <div className="adm-table">
+          <div className="adm-thead">
+            <div className="adm-th">#</div>
+            <div className="adm-th">Name</div>
+            <div className="adm-th">Gang</div>
+            <div className="adm-th">Action</div>
           </div>
           {loading ? (
-            <div className="py-16 text-center text-xs tracking-[0.4em] text-zinc-700 uppercase">Loading...</div>
+            <div className="adm-empty">Loading...</div>
           ) : filtered.length === 0 ? (
-            <div className="py-16 text-center text-xs tracking-[0.4em] text-zinc-700 uppercase">No members</div>
+            <div className="adm-empty">No members</div>
           ) : (
             filtered.map((member, idx) => (
-              <div key={member.id} className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-zinc-900 hover:bg-zinc-950 group transition-colors">
-                <div className="col-span-1 flex items-center">
-                  <span className="text-2xl text-zinc-800 group-hover:text-red-600 transition-colors leading-none" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                    {String(idx + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <div className="col-span-5 flex items-center">
-                  <span className="font-bold tracking-widest uppercase text-sm">{member.name}</span>
-                </div>
-                <div className="col-span-4 flex items-center">
-                  <span className="text-xs tracking-[0.2em] text-zinc-500 uppercase font-mono">{member.gang_slug}</span>
-                </div>
-                <div className="col-span-2 flex items-center gap-4">
-                  <button onClick={() => openEdit(member)} className="text-xs tracking-wider text-zinc-600 hover:text-white uppercase transition-colors">Edit</button>
-                  <button onClick={() => handleDelete(member)} className="text-xs tracking-wider text-zinc-700 hover:text-red-600 uppercase transition-colors">Del</button>
+              <div key={member.id} className="adm-row">
+                <div className="adm-num">{String(idx + 1).padStart(2, "0")}</div>
+                <div className="adm-name">{member.name}</div>
+                <div className="adm-gang">{member.gang_slug}</div>
+                <div className="adm-actions">
+                  <button className="adm-act" onClick={() => openEdit(member)}>Edit</button>
+                  <button className="adm-act adm-act-del" onClick={() => handleDelete(member)}>Del</button>
                 </div>
               </div>
             ))
           )}
         </div>
-        <p className="text-xs tracking-[0.3em] text-zinc-700 uppercase mt-3">Showing {filtered.length} of {members.length}</p>
+        <div className="adm-count">Showing {filtered.length} of {members.length}</div>
       </div>
 
       {/* MODAL */}
       {modal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4" onClick={() => setModal(null)}>
-          <div className="bg-zinc-950 border border-zinc-800 w-full max-w-md p-8" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl uppercase" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
-                {modal === "add" ? "Add Member" : "Edit Member"}
-              </h2>
-              <button onClick={() => setModal(null)} className="text-zinc-600 hover:text-white text-xs tracking-[0.3em] uppercase">Close</button>
+        <div className="adm-overlay" onClick={() => setModal(null)}>
+          <div className="adm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="adm-modal-head">
+              <div className="adm-modal-title">{modal === "add" ? "Add Member" : "Edit Member"}</div>
+              <button className="adm-close" onClick={() => setModal(null)}>Close</button>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs tracking-[0.3em] text-zinc-600 uppercase mb-2">Name</label>
-                <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-black border border-zinc-800 text-white text-sm tracking-wider py-3 px-4 outline-none focus:border-zinc-600 transition-colors" />
-              </div>
-              <div>
-                <label className="block text-xs tracking-[0.3em] text-zinc-600 uppercase mb-2">Gang</label>
-                <select value={form.gang_slug} onChange={(e) => setForm({ ...form, gang_slug: e.target.value })}
-                  className="w-full bg-black border border-zinc-800 text-white text-sm tracking-wider py-3 px-4 outline-none focus:border-zinc-600 transition-colors">
-                  {gangs.map((g) => <option key={g.slug} value={g.slug}>{g.name}</option>)}
-                </select>
-              </div>
+            <div className="adm-field">
+              <label className="adm-label">Name</label>
+              <input className="adm-input" style={{ marginBottom: 0 }} type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             </div>
-            <button onClick={handleSave} disabled={saving || !form.name}
-              className="mt-8 w-full border border-white text-white py-3 text-xs tracking-[0.4em] uppercase font-semibold hover:bg-white hover:text-black transition-all duration-200 disabled:opacity-25">
+            <div className="adm-field">
+              <label className="adm-label">Gang</label>
+              <select className="adm-select" value={form.gang_slug} onChange={(e) => setForm({ ...form, gang_slug: e.target.value })}>
+                {gangs.map((g) => <option key={g.slug} value={g.slug}>{g.name}</option>)}
+              </select>
+            </div>
+            <button className="adm-save" onClick={handleSave} disabled={saving || !form.name}>
               {saving ? "Saving..." : "Save"}
             </button>
           </div>

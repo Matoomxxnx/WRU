@@ -47,7 +47,7 @@ export default function AdminDashboard() {
         </div>
         <div className="flex items-center gap-6">
           <Link href="/WRU" className="text-xs tracking-[0.3em] text-zinc-600 uppercase hover:text-white transition-colors">View Site</Link>
-          <Link href="/api/auth/signout" className="text-xs tracking-[0.3em] text-zinc-600 uppercase hover:text-red-500 transition-colors">Logout</Link>
+          <Link href="/api/auth/logout" className="text-xs tracking-[0.3em] text-zinc-600 uppercase hover:text-red-500 transition-colors">Logout</Link>
         </div>
       </header>
       <div className="px-8 py-10 max-w-4xl mx-auto">
