@@ -4,10 +4,10 @@ export const dynamic = "force-dynamic";
 
 type Member = {
   name: string;
-  role?: string;
+  role: string; // เราจะใช้ค่านี้แยกกลุ่ม เช่น 'founder', 'leader', 'member'
   gang_slug?: string;
   image_url?: string;
-  facebook_url?: string; // เพิ่มฟิลด์นี้เพื่อให้รองรับการคลิก
+  facebook_url?: string;
 };
 
 async function getMembers(): Promise<Member[]> {
@@ -19,81 +19,101 @@ async function getMembers(): Promise<Member[]> {
 }
 
 export default async function MembersPage() {
-  const members = await getMembers();
+  const allMembers = await getMembers();
+
+  // ฟังก์ชันแยกกลุ่มสมาชิก
+  const categories = [
+    { 
+      title: "FOUNDERS", 
+      data: allMembers.filter(m => m.role?.toLowerCase() === 'founder'),
+      color: "border-yellow-500/50" 
+    },
+    { 
+      title: "LEADERS", 
+      data: allMembers.filter(m => m.role?.toLowerCase() === 'leader'),
+      color: "border-red-500/50" 
+    },
+    { 
+      title: "MEMBERS", 
+      data: allMembers.filter(m => !['founder', 'leader'].includes(m.role?.toLowerCase() || '')),
+      color: "border-white/10" 
+    },
+  ];
 
   return (
-    <main className="min-h-screen bg-black text-white relative overflow-hidden font-sans">
-      {/* เอฟเฟกต์แสง Glow หลังชื่อ MEMBERS */}
-      <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-white/5 blur-[100px] rounded-full pointer-events-none" />
-
-      <section className="relative z-10 max-w-7xl mx-auto px-6 py-16">
-        <header className="mb-12 border-b border-white/5 pb-8 flex justify-between items-end">
-          <div>
-            <div className="text-[10px] tracking-[0.5em] text-white/30 mb-2 uppercase">WRU — ROSTER</div>
-            <h1 className="text-7xl font-black italic tracking-tighter leading-none">MEMBERS</h1>
-            <div className="text-[10px] text-white/40 mt-4 uppercase tracking-widest">
-              Total: <span className="text-white font-mono">{members.length}</span>
-            </div>
-          </div>
-          <Link href="/" className="mb-back border border-white/20 px-4 py-1 text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all">
-            ← Back
-          </Link>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {members.map((m, idx) => (
-            <article key={`${m.name}-${idx}`} className="group relative bg-[#0c0c0c] border border-white/5 p-5 transition-all hover:bg-[#121212]">
-              <div className="flex items-center gap-4">
-                {/* ส่วนรูปภาพหรือตัวอักษรแรก */}
-                <div className="w-14 h-14 bg-[#1a1a1a] flex items-center justify-center border border-white/10 overflow-hidden">
-                  {m.image_url ? (
-                    <img src={m.image_url} alt={m.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
-                  ) : (
-                    <span className="text-xl font-black text-white/20">{m.name.charAt(0)}</span>
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  {/* ชื่อผู้เล่น + ลิงก์เฟสบุ๊ก */}
-                  {m.facebook_url ? (
-                    <a 
-                      href={m.facebook_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-lg font-bold block truncate hover:text-blue-400 transition-colors flex items-center gap-1"
-                      title="Visit Facebook"
-                    >
-                      {m.name}
-                      <svg className="w-3 h-3 opacity-30" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm3 8h-1.35c-.538 0-.65.221-.65.778v1.222h2l-.209 2h-1.791v7h-3v-7h-2v-2h2v-2.308c0-1.769.931-2.692 3.029-2.692h1.971v3z"/></svg>
-                    </a>
-                  ) : (
-                    <h3 className="text-lg font-bold truncate">{m.name}</h3>
-                  )}
-                  <p className="text-[9px] text-white/30 uppercase tracking-widest">{m.role || "Member"}</p>
-                </div>
-              </div>
-
-              {/* Tag แก็งและสถานะ */}
-              <div className="flex gap-2 mt-5">
-                <span className="text-[8px] font-bold px-2 py-1 bg-white/5 border border-white/10 text-white/50 uppercase">
-                  {m.gang_slug || "No Gang"}
-                </span>
-                <span className="text-[8px] font-bold px-2 py-1 bg-green-500/10 border border-green-500/20 text-green-500 uppercase">
-                  Active
-                </span>
-              </div>
-
-              {/* เส้นขีดตกแต่งที่มุม (ให้เหมือน UI ในรูปสุดท้ายที่คุณส่งมา) */}
-              <div className="absolute top-0 right-0 w-4 h-[1px] bg-white/10" />
-              <div className="absolute top-0 right-0 w-[1px] h-4 bg-white/10" />
-            </article>
-          ))}
+    <main className="min-h-screen bg-black text-white font-sans p-8 md:p-16">
+      <header className="max-w-7xl mx-auto mb-20 flex justify-between items-start">
+        <div>
+          <div className="text-[10px] tracking-[0.5em] text-white/30 mb-2 uppercase">WRU — ROSTER</div>
+          <h1 className="text-8xl font-black italic tracking-tighter leading-none">MEMBERS</h1>
         </div>
-      </section>
+        <Link href="/" className="border border-white/20 px-6 py-2 text-[10px] uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all">
+          ← BACK
+        </Link>
+      </header>
 
-      <footer className="py-10 text-center text-[9px] text-white/10 tracking-[0.5em] uppercase">
-        Collective — Est. 2024
-      </footer>
+      <div className="max-w-7xl mx-auto space-y-24">
+        {categories.map((cat) => (
+          cat.data.length > 0 && (
+            <section key={cat.title}>
+              {/* หัวข้อกลุ่ม พร้อมตัวเลขจำนวนสมาชิก */}
+              <div className="flex items-center gap-4 mb-10">
+                <h2 className="text-4xl font-black italic tracking-tight uppercase">{cat.title}</h2>
+                <span className="text-xl font-mono text-white/20">
+                  / {cat.data.length.toString().padStart(2, '0')}
+                </span>
+                <div className="h-[1px] flex-1 bg-white/5 ml-4"></div>
+              </div>
+
+              {/* Grid รายชื่อในแต่ละกลุ่ม */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {cat.data.map((m, idx) => (
+                  <article 
+                    key={`${m.name}-${idx}`} 
+                    className={`relative bg-[#0d0d0d] border ${cat.color} p-6 flex items-center gap-6 group hover:bg-[#151515] transition-all`}
+                  >
+                    {/* รูปภาพโปรไฟล์ */}
+                    <div className="relative w-20 h-20 shrink-0 border border-white/10 overflow-hidden">
+                      {m.image_url ? (
+                        <img src={m.image_url} alt={m.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-white/5 text-2xl font-black opacity-20 uppercase">
+                          {m.name.charAt(0)}
+                        </div>
+                      )}
+                      {/* จุดเขียวแสดงสถานะ (Online) */}
+                      <div className="absolute bottom-1 right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0d0d0d]"></div>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      {/* Badge บอกตำแหน่งด้านบนชื่อ */}
+                      <div className="mb-1">
+                        <span className={`text-[8px] font-bold px-2 py-[2px] rounded-full border ${cat.color} text-white/60 uppercase tracking-tighter`}>
+                          👑 {cat.title.slice(0, -1)}
+                        </span>
+                      </div>
+                      
+                      <h3 className="text-xl font-bold truncate mb-1">{m.name}</h3>
+                      
+                      {/* ลิงก์ Facebook */}
+                      {m.facebook_url && (
+                        <a 
+                          href={m.facebook_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-[11px] font-bold text-blue-400 hover:text-white transition-colors flex items-center gap-1 uppercase tracking-widest"
+                        >
+                          Facebook
+                        </a>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )
+        ))}
+      </div>
     </main>
   );
 }
