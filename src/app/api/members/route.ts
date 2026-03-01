@@ -3,7 +3,7 @@ import { supabaseAdmin } from "../../../lib/supabase-server";
 import { revalidatePath } from "next/cache";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic"; 
+export const dynamic = "force-dynamic"; // บังคับให้ดึงข้อมูลใหม่เสมอเมื่อมีการเรียก API
 
 // GET — ดึงสมาชิกทั้งหมด
 export async function GET() {
@@ -28,7 +28,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "name is required" }, { status: 400 });
     }
 
-    // บันทึกข้อมูลลง Supabase
     const { data, error } = await supabaseAdmin
       .from("members")
       .insert({ 
@@ -41,17 +40,17 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error("Supabase Insert Error:", error);
-      return NextResponse.json({ 
-        error: error.message,
-        details: error.details
-      }, { status: 500 });
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // --- ส่วนสำคัญที่ทำให้ข้อมูลเชื่อมกับหน้า MEMBERS ---
-    // ล้าง Cache หน้าสมาชิกเพื่อให้ Next.js ดึงข้อมูลใหม่มาโชว์ทันที
+    // --- ส่วนที่ทำให้ข้อมูลเชื่อมกับหน้าหน้าสมาชิก ---
+    // 1. ล้างแคชหน้า /members (หน้า Roster ที่คุณส่งรูปมา)
     revalidatePath("/members"); 
-    revalidatePath("/(slug)", "layout"); // กรณีใช้ Dynamic Route เช่น /[slug] เพื่อให้หน้า Gang อัปเดตด้วย
-    
+    // 2. ล้างแคชหน้า admin เพื่อให้รายการในตารางอัปเดต
+    revalidatePath("/admin/members"); 
+    // 3. ถ้าคุณมีหน้าแยกตามแก็ง (เช่น /[slug]) ให้ล้างแคช Layout ด้วย
+    revalidatePath("/", "layout");
+
     return NextResponse.json(data[0]); 
   } catch (err) {
     console.error("API Route Error:", err);
